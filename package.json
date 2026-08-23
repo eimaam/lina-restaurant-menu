@@ -1,0 +1,17 @@
+{
+  "name": "lina-restaurant-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lina Restaurant & Bar Digital Menu & Management System",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"pnpm --filter @lina/server dev\" \"pnpm --filter @lina/client dev\"",
+    "dev:server": "pnpm --filter @lina/server dev",
+    "dev:client": "pnpm --filter @lina/client dev",
+    "build": "pnpm --filter @lina/server build && pnpm --filter @lina/client build",
+    "seed": "pnpm --filter @lina/server seed",
+    "start": "pnpm --filter @lina/server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
