@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { CartItem, MenuItemResponse, MenuItemSize, SelectedOptionItem } from '../types';
+import type { CartItem, MenuItemResponse, MenuItemSize, SelectedOptionItem } from '@lina/types';
 
 interface CartContextType {
   items: CartItem[];

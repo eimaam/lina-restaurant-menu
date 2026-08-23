@@ -16,7 +16,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
   try {
     const { name, email, password, phone, role } = req.body;
     if (!name || !email || !password) {
-      res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
+      res.status(400).json({ success: false, message: 'Name, email and password are required.' });
       return;
     }
 

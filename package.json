@@ -4,10 +4,15 @@
   "private": true,
   "description": "Lina Restaurant & Bar Digital Menu & Management System",
   "scripts": {
-    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"pnpm --filter @lina/server dev\" \"pnpm --filter @lina/client dev\"",
+    "dev": "concurrently -n \"SERVER,CLIENT,CONSOLE\" -c \"blue,green,magenta\" \"pnpm --filter @lina/server dev\" \"pnpm --filter @lina/client dev\" \"pnpm --filter @lina/console dev\"",
     "dev:server": "pnpm --filter @lina/server dev",
     "dev:client": "pnpm --filter @lina/client dev",
-    "build": "pnpm --filter @lina/server build && pnpm --filter @lina/client build",
+    "dev:console": "pnpm --filter @lina/console dev",
+    "build:packages": "pnpm --filter @lina/types build && pnpm --filter @lina/ui build",
+    "build": "pnpm --filter @lina/types build && pnpm --filter @lina/ui build && pnpm --filter @lina/server build && pnpm --filter @lina/client build && pnpm --filter @lina/console build",
+    "build:client": "pnpm --filter @lina/client build",
+    "build:console": "pnpm --filter @lina/console build",
+    "build:server": "pnpm --filter @lina/server build",
     "seed": "pnpm --filter @lina/server seed",
     "start": "pnpm --filter @lina/server start"
   },

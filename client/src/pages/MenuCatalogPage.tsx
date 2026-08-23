@@ -10,7 +10,7 @@ import { ItemCustomizerModal } from '../components/menu/ItemCustomizerModal';
 import { FloatingCartBar } from '../components/menu/FloatingCartBar';
 import { useCart } from '../contexts/CartContext';
 import { publicApi } from '../lib/api';
-import type { MenuCategoryResponse, MenuItemResponse, BannerResponse } from '../types';
+import type { MenuCategoryResponse, MenuItemResponse, BannerResponse } from '@lina/types';
 
 export const MenuCatalogPage: React.FC = () => {
   const [searchParams] = useSearchParams();

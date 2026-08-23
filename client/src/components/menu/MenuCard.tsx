@@ -1,8 +1,7 @@
 import React from 'react';
 import { Plus, SlidersHorizontal, Flame, Sparkles } from 'lucide-react';
-import type { MenuItemResponse } from '../../types';
-import { formatNaira } from '../../lib/utils';
-import { Badge } from '../ui/Badge';
+import type { MenuItemResponse } from '@lina/types';
+import { formatNaira, Badge } from '@lina/ui';
 
 interface MenuCardProps {
   item: MenuItemResponse;

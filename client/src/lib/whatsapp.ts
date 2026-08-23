@@ -1,5 +1,5 @@
-import { formatNaira } from './utils';
-import type { CartItem, FulfillmentTypeType } from '../types';
+import { formatNaira } from '@lina/ui';
+import type { CartItem, FulfillmentTypeType } from '@lina/types';
 
 export const RESTAURANT_WHATSAPP_NUMBER = '2349165196622'; // 09165196622 in international format
 

@@ -13,12 +13,14 @@ import {
   CheckCircle2,
   CalendarDays,
   ShoppingBag,
+  Truck,
+  Sofa,
+  Armchair,
 } from 'lucide-react';
 import { PublicHeader } from '../components/layout/PublicHeader';
 import { PublicFooter } from '../components/layout/PublicFooter';
-import { Button } from '../components/ui/Button';
-import { Logo } from '../components/ui/Logo';
-import { WhatsAppIcon, GoogleMapsIcon } from '../components/ui/Icons';
+import { Button, Logo, WhatsAppIcon, GoogleMapsIcon } from '@lina/ui';
+import heroBg from '../assets/images/hero-bg.jpg';
 
 export const LandingPage: React.FC = () => {
   const pillars = [
@@ -39,7 +41,7 @@ export const LandingPage: React.FC = () => {
     {
       id: 'bar',
       title: 'Lounge & Premium Bar',
-      tag: 'Craft Mixology',
+      // tag: 'Craft Mixology',
       desc: 'Signature cocktails, refreshing mocktails, ice-cold beers, and top-shelf spirits served in our relaxing dining bar.',
       icon: <Wine size={22} className="text-primary" />,
     },
@@ -48,7 +50,7 @@ export const LandingPage: React.FC = () => {
       title: 'VIP Lounge & Shisha',
       tag: 'Nightlife & Ambience',
       desc: 'Ambient lounge space featuring smooth, flavored shisha pots, plush seating, and curated music for evening unwind.',
-      icon: <Sparkles size={22} className="text-secondary" />,
+      icon: <Armchair size={22} className="text-secondary" />,
     },
     {
       id: 'street-food',
@@ -60,7 +62,7 @@ export const LandingPage: React.FC = () => {
     {
       id: 'tea',
       title: 'SAF Arabian Tea Space',
-      tag: 'Herbal Botanicals',
+      // tag: 'Herbal Botanicals',
       desc: 'Freshly brewed traditional herbal teas served in shared jugs with aromatic Middle Eastern spices and natural herbs.',
       icon: <Coffee size={22} className="text-secondary" />,
     },
@@ -83,7 +85,7 @@ export const LandingPage: React.FC = () => {
       num: '03',
       title: 'Fast Delivery / Table Service',
       desc: 'Freshly prepared by our culinary team and served steaming hot right to you.',
-      icon: <CheckCircle2 size={20} className="text-primary" />,
+      icon: <Truck size={20} className="text-primary" />,
     },
   ];
 
@@ -93,11 +95,21 @@ export const LandingPage: React.FC = () => {
 
       <main className="flex-1">
         {/* 1. HERO SECTION: Warm, Moody, Elegant Hospitality */}
-        <section className="relative bg-[#161311] text-[#FAF7F2] pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-[#2E2722]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative bg-[#161311] text-[#FAF7F2] pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-[#2E2722] overflow-hidden">
+          {/* Authentic Warm Background Image with Solid Dark Overlay (Zero Gradients) */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={heroBg}
+              alt="Lina Restaurant, Lounge & Bar Ambience"
+              className="w-full h-full object-cover object-center scale-105"
+            />
+            <div className="absolute inset-0 bg-[#161311]/85" />
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center space-y-8">
               {/* Brand Logo Visual Badge */}
-              <div className="inline-flex items-center justify-center p-3 sm:p-4 rounded-2xl bg-[#1E1A17] border border-[#3D332A] shadow-xs">
+              <div className="inline-flex items-center justify-center p-3 sm:p-4 rounded-2xl bg-[#1E1A17]/90 border border-[#3D332A] shadow-xs backdrop-blur-xs">
                 <Logo size="xl" />
               </div>
 
@@ -121,7 +133,6 @@ export const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                 <Link to="/menu" className="w-full sm:w-auto">
                   <Button variant="gold" size="lg" className="w-full sm:w-auto text-sm sm:text-base">
-                    <ShoppingBag size={18} />
                     <span>Browse Menu & Order</span>
                   </Button>
                 </Link>
@@ -137,7 +148,6 @@ export const LandingPage: React.FC = () => {
                     size="lg"
                     className="w-full sm:w-auto text-sm sm:text-base border-[#3D332A] text-[#FAF7F2] hover:bg-[#2E2722] hover:text-primary gap-2"
                   >
-                    <WhatsAppIcon size={18} className="text-[#25D366]" />
                     <span>Book Catering / Table</span>
                   </Button>
                 </a>
@@ -210,7 +220,7 @@ export const LandingPage: React.FC = () => {
                 Crafted for Every Craving & Occasion
               </h2>
               <p className="text-sm text-on-surface-variant">
-                Explore our signature kitchen offerings, vibrant nightlife, and relaxed social spaces.
+                Explore our signature kitchen offerings, vibrant nightlife and relaxed social spaces.
               </p>
             </div>
 
@@ -226,9 +236,12 @@ export const LandingPage: React.FC = () => {
                       <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/50">
                         {item.icon}
                       </div>
+                      {
+                        item.tag &&
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container border border-primary/20">
                         {item.tag}
                       </span>
+                      }
                     </div>
 
                     <div className="space-y-1.5">
@@ -270,10 +283,7 @@ export const LandingPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#1E1A17] text-[#FAF7F2] rounded-3xl p-8 sm:p-12 border border-[#3D332A] grid grid-cols-1 lg:grid-cols-3 gap-8 items-center shadow-sm">
               <div className="lg:col-span-2 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2E2722] border border-primary/40 text-primary text-xs font-bold uppercase tracking-wider">
-                  <CalendarDays size={14} className="text-primary" />
-                  <span>Outdoor Catering & Private Events</span>
-                </div>
+              
 
                 <h2 className="font-serif font-black text-2xl sm:text-3xl lg:text-4xl text-[#FAF7F2] leading-tight">
                   Hosting an Event? Let Lina Handle the Feast.
@@ -372,14 +382,14 @@ export const LandingPage: React.FC = () => {
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <WhatsAppIcon size={16} className="text-[#25D366]" />
-                    <span>WhatsApp: 09165196622</span>
+                    <span>09165196622</span>
                   </a>
                   <a
                     href="tel:09165196622"
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <PhoneCall size={16} className="text-primary" />
-                    <span>Phone: 09165196622</span>
+                    <span>09165196622</span>
                   </a>
                 </div>
               </div>

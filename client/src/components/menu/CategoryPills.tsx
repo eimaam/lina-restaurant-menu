@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Utensils } from 'lucide-react';
-import type { MenuCategoryResponse } from '../../types';
-import { cn } from '../../lib/utils';
+import type { MenuCategoryResponse } from '@lina/types';
+import { cn } from '@lina/ui';
 
 interface CategoryPillsProps {
   categories: MenuCategoryResponse[];

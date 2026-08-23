@@ -15,14 +15,11 @@ import {
 } from 'lucide-react';
 import { PublicHeader } from '../components/layout/PublicHeader';
 import { PublicFooter } from '../components/layout/PublicFooter';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { WhatsAppIcon } from '../components/ui/Icons';
+import { Button, Input, WhatsAppIcon, formatNaira } from '@lina/ui';
 import { useCart } from '../contexts/CartContext';
 import { publicApi } from '../lib/api';
 import { generateWhatsAppDeepLink } from '../lib/whatsapp';
-import { formatNaira } from '../lib/utils';
-import type { FulfillmentTypeType, CartItem, SelectedOptionItem } from '../types';
+import type { FulfillmentTypeType, CartItem, SelectedOptionItem } from '@lina/types';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();

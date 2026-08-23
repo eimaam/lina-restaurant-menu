@@ -1,10 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
-import { Logo } from '../ui/Logo';
-import { WhatsAppIcon } from '../ui/Icons';
+import { Logo, WhatsAppIcon, cn } from '@lina/ui';
 import { useCart } from '../../contexts/CartContext';
-import { cn } from '../../lib/utils';
 
 export const PublicHeader: React.FC = () => {
   const location = useLocation();

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, Clock, ExternalLink } from 'lucide-react';
-import { Logo } from '../ui/Logo';
-import { WhatsAppIcon, InstagramIcon, GoogleMapsIcon } from '../ui/Icons';
+import { Logo, WhatsAppIcon, InstagramIcon, GoogleMapsIcon } from '@lina/ui';
 
 export const PublicFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -66,7 +65,7 @@ export const PublicFooter: React.FC = () => {
                   className="flex items-center gap-2 text-[#DDD7CB] hover:text-primary transition-colors"
                 >
                   <WhatsAppIcon size={14} className="text-[#25D366] shrink-0" />
-                  <span>WhatsApp: 09165196622</span>
+                  <span>09165196622</span>
                 </a>
               </li>
               <li>
@@ -75,7 +74,7 @@ export const PublicFooter: React.FC = () => {
                   className="flex items-center gap-2 text-[#DDD7CB] hover:text-primary transition-colors"
                 >
                   <Phone size={14} className="text-primary shrink-0" />
-                  <span>Call: 09165196622</span>
+                  <span>09165196622</span>
                 </a>
               </li>
               <li>

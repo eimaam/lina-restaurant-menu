@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import type { BannerResponse } from '../../types';
+import type { BannerResponse } from '@lina/types';
 
 interface BannersCarouselProps {
   banners: BannerResponse[];

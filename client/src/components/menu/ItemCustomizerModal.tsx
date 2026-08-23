@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Minus, Check, AlertCircle } from 'lucide-react';
-import { Modal } from '../ui/Modal';
-import { Button } from '../ui/Button';
+import { Modal, Button, formatNaira } from '@lina/ui';
 import type {
   MenuItemResponse,
   MenuItemSize,
   MenuItemOptionGroup,
   SelectedOptionItem,
-} from '../../types';
-import { formatNaira } from '../../lib/utils';
+} from '@lina/types';
 
 interface ItemCustomizerModalProps {
   item: MenuItemResponse | null;

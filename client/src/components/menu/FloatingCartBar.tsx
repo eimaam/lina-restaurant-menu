@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
-import { formatNaira } from '../../lib/utils';
+import { formatNaira } from '@lina/ui';
 
 export const FloatingCartBar: React.FC = () => {
   const { totalItemsCount, subtotal } = useCart();
