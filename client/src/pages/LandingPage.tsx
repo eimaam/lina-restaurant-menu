@@ -75,7 +75,7 @@ export const LandingPage: React.FC = () => {
     },
     {
       num: '02',
-      title: 'Order via WhatsApp',
+      title: 'Place Order',
       desc: 'Direct one-tap checkout with your address or table number sent straight to our kitchen.',
       icon: <WhatsAppIcon size={20} className="text-[#25D366]" />,
     },
@@ -113,7 +113,7 @@ export const LandingPage: React.FC = () => {
                   Where Good Food Meets Great Vibes.
                 </p>
                 <p className="text-sm sm:text-base text-[#DDD7CB] max-w-2xl mx-auto leading-relaxed pt-1">
-                  From steaming fisherman soups and charcoal grills to exotic Arabian teas and ambient VIP shisha sessions. Order online straight to WhatsApp or dine with us.
+                  From steaming fisherman soups and charcoal grills to exotic Arabian teas and ambient VIP shisha sessions. Order online straight to our Kitchen or dine with us.
                 </p>
               </div>
 

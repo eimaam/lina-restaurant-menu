@@ -14,6 +14,7 @@ import { formatNaira } from '../../lib/utils';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { toast } from '../../components/ui/Toast';
+import { WhatsAppIcon } from '../../components/ui/Icons';
 import { OrderStatus, type OrderResponse, type OrderStatusType } from '../../types';
 
 export const OrdersHistoryPage: React.FC = () => {
@@ -336,9 +337,9 @@ export const OrdersHistoryPage: React.FC = () => {
                   href={selectedOrder.whatsappDeepLinkUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all"
+                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold rounded-xl text-xs transition-all shadow-xs"
                 >
-                  <Send size={14} />
+                  <WhatsAppIcon size={16} />
                   <span>Re-open WhatsApp Message</span>
                   <ExternalLink size={14} />
                 </a>
