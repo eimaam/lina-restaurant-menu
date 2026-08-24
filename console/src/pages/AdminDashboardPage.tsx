@@ -48,7 +48,7 @@ export const AdminDashboardPage: React.FC = () => {
             Welcome back, {user?.name || 'Manager'}
           </h1>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            Lina Restaurant & Bar Management Portal • 27/29 6th Avenue, Gwarinpa
+            Lina Restaurant, Bar And Street Food Management Portal • 27/29 6th Avenue, Gwarinpa
           </p>
         </div>
 
@@ -168,8 +168,8 @@ export const AdminDashboardPage: React.FC = () => {
                             order.fulfillmentType === 'dine_in'
                               ? 'primary'
                               : order.fulfillmentType === 'delivery'
-                              ? 'secondary'
-                              : 'neutral'
+                                ? 'secondary'
+                                : 'neutral'
                           }
                           size="sm"
                         >

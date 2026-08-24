@@ -37,7 +37,7 @@ export const Logo: React.FC<LogoProps> = ({
       {!imageError ? (
         <img
           src={linaLogo}
-          alt="Lina Restaurant, Lounge & Bar"
+          alt="Lina Restaurant, Bar And Street Food"
           onError={() => setImageError(true)}
           style={{
             height: `${cfg.heightPx}px`,
@@ -65,7 +65,7 @@ export const Logo: React.FC<LogoProps> = ({
             </div>
             {showSubtitle && (
               <div className="text-[10px] uppercase tracking-[0.2em] font-semibold text-primary">
-                Restaurant & Bar
+                Restaurant Bar & Street Food
               </div>
             )}
           </div>

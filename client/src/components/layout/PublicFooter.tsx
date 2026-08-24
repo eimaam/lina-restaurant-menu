@@ -14,7 +14,7 @@ export const PublicFooter: React.FC = () => {
           <div className="space-y-3">
             <Logo size="md" className="brightness-125" />
             <p className="text-xs text-[#A89F91] leading-relaxed">
-              Lina Restaurant, Lounge & Bar — Where Good Food Meets Great Vibes. Authentic Nigerian kitchen, charcoal grills, cocktail lounge, shisha, and SAF Arabian tea in Gwarinpa, Abuja.
+              Lina Restaurant, Bar And Street Food — Where Good Food Meets Great Vibes. Authentic Nigerian kitchen, charcoal grills, cocktail lounge, shisha, and SAF Arabian tea in Gwarinpa, Abuja.
             </p>
           </div>
 
@@ -116,7 +116,7 @@ export const PublicFooter: React.FC = () => {
 
         {/* Minimal Bottom Bar */}
         <div className="pt-6 border-t border-[#2E2722] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8A7E72]">
-          <p>© {currentYear} Lina Restaurant, Lounge & Bar. All rights reserved.</p>
+          <p>© {currentYear} Lina Restaurant, Bar And Street Food. All rights reserved.</p>
 
           <div className="flex items-center gap-6">
             <a

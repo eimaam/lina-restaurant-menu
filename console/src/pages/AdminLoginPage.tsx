@@ -42,7 +42,7 @@ export const AdminLoginPage: React.FC = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
-          'Invalid email or password. Please check your credentials and try again.'
+        'Invalid email or password. Please check your credentials and try again.'
       );
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export const AdminLoginPage: React.FC = () => {
           <span>Return to Guest Menu</span>
         </a>
 
-       
+
       </div>
 
       {/* Main Authentication Card */}
@@ -160,12 +160,12 @@ export const AdminLoginPage: React.FC = () => {
           </form>
         </div>
 
-      
+
       </div>
 
       {/* Bottom Footer */}
       <div className="text-[11px] text-on-surface-variant/60 text-center">
-        © {new Date().getFullYear()} Lina Restaurant, Lounge & Bar
+        © {new Date().getFullYear()} Lina Restaurant, Bar And Street Food
       </div>
     </div>
   );

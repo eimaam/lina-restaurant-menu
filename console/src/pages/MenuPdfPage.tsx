@@ -107,21 +107,19 @@ export const MenuPdfPage: React.FC = () => {
           <div className="flex items-center p-1 bg-surface-container rounded-2xl border border-outline-variant text-xs">
             <button
               onClick={() => setSelectedStyle('midnight')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                selectedStyle === 'midnight'
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${selectedStyle === 'midnight'
                   ? 'bg-[#161311] text-[#FAF7F2] shadow-xs'
                   : 'text-on-surface-variant hover:text-on-surface'
-              }`}
+                }`}
             >
               Midnight Gold
             </button>
             <button
               onClick={() => setSelectedStyle('classic')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-                selectedStyle === 'classic'
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${selectedStyle === 'classic'
                   ? 'bg-amber-100 text-amber-950 shadow-xs'
                   : 'text-on-surface-variant hover:text-on-surface'
-              }`}
+                }`}
             >
               Classic Cream
             </button>
@@ -186,7 +184,7 @@ export const MenuPdfPage: React.FC = () => {
                       Official Dining & Bar Menu
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-[#FAF7F2] leading-tight">
-                      Lina Restaurant, Lounge & Bar
+                      Lina Restaurant, Bar And Street Food
                     </h1>
                     <p className="text-xl sm:text-2xl italic text-[#C5943A] font-medium">
                       Where Good Food Meets Great Vibes.
@@ -273,7 +271,7 @@ export const MenuPdfPage: React.FC = () => {
 
                 {/* ── FOOTER ── */}
                 <div className="border-t border-[#3D332A] pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-[#A89F91] font-sans">
-                  <div>© {new Date().getFullYear()} Lina Restaurant, Lounge & Bar • Gwarinpa, Abuja</div>
+                  <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
                   <div>{defaultDomain}</div>
                 </div>
               </div>
@@ -295,7 +293,7 @@ export const MenuPdfPage: React.FC = () => {
                       Fine Dining & Lounge
                     </span>
                     <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-amber-950 leading-tight">
-                      Lina Restaurant & Lounge
+                      Lina Restaurant, Bar And Street Food
                     </h1>
                     <p className="text-xl sm:text-2xl italic text-amber-800 font-medium">
                       Where Good Food Meets Great Vibes.
@@ -384,7 +382,7 @@ export const MenuPdfPage: React.FC = () => {
 
                 {/* ── FOOTER ── */}
                 <div className="border-t border-amber-900/20 pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-stone-500 font-sans">
-                  <div>© {new Date().getFullYear()} Lina Restaurant, Lounge & Bar • Gwarinpa, Abuja</div>
+                  <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
                   <div>{defaultDomain}</div>
                 </div>
               </div>

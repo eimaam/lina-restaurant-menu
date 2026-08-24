@@ -100,7 +100,7 @@ export const LandingPage: React.FC = () => {
           <div className="absolute inset-0 z-0">
             <img
               src={heroBg}
-              alt="Lina Restaurant, Lounge & Bar Ambience"
+              alt="Lina Restaurant, Bar And Street Food Ambience"
               className="w-full h-full object-cover object-center scale-105"
             />
             <div className="absolute inset-0 bg-[#161311]/85" />
@@ -119,7 +119,7 @@ export const LandingPage: React.FC = () => {
                   Gwarinpa, Abuja
                 </div>
                 <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl text-[#FAF7F2] leading-tight tracking-tight">
-                  Lina Restaurant, Lounge & Bar
+                  Lina Restaurant, Bar And Street Food
                 </h1>
                 <p className="text-xl sm:text-2xl font-serif italic text-primary font-medium">
                   Where Good Food Meets Great Vibes.
@@ -238,9 +238,9 @@ export const LandingPage: React.FC = () => {
                       </div>
                       {
                         item.tag &&
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container border border-primary/20">
-                        {item.tag}
-                      </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary-container text-on-primary-container border border-primary/20">
+                          {item.tag}
+                        </span>
                       }
                     </div>
 
@@ -283,7 +283,7 @@ export const LandingPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#1E1A17] text-[#FAF7F2] rounded-3xl p-8 sm:p-12 border border-[#3D332A] grid grid-cols-1 lg:grid-cols-3 gap-8 items-center shadow-sm">
               <div className="lg:col-span-2 space-y-4">
-              
+
 
                 <h2 className="font-serif font-black text-2xl sm:text-3xl lg:text-4xl text-[#FAF7F2] leading-tight">
                   Hosting an Event? Let Lina Handle the Feast.

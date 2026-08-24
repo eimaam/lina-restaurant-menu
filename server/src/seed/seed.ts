@@ -1080,8 +1080,8 @@ export const seedDatabase = async () => {
     await Banner.deleteMany({});
     await Banner.create([
       {
-        title: 'Welcome to Lina Restaurant & Bar',
-        subtitle: 'Experience exquisite African gastronomy, Arabian teas, and luxury lounge ambiance in Gwarinpa.',
+        title: 'Welcome to Lina Restaurant, Bar And Street Food',
+        subtitle: 'Experience exquisite African gastronomy, street food delicacies, Arabian teas, and luxury lounge ambiance in Gwarinpa.',
         bannerType: BannerType.Announcement,
         isActive: true,
         sortOrder: 1,

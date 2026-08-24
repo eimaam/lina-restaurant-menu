@@ -57,7 +57,7 @@ export function formatWhatsAppOrderMessage({
     })
     .join('\n');
 
-  let message = `🍽️ *NEW ORDER - #${orderNumber}*\n`;
+  let message = `🍽️ *LINA RESTAURANT BAR & STREET FOOD - ORDER #${orderNumber}*\n`;
   message += `--------------------------------\n`;
   message += `👤 *Customer:* ${customerName?.trim() || 'Valued Guest'}\n`;
   if (customerPhone?.trim()) {
