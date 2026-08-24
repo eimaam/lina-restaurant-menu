@@ -38,10 +38,10 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             <ChevronLeft size={16} />
           </button>
 
-          {/* Scrollable Category List */}
+          {/* Scrollable Category List (2 Rows) */}
           <div
             ref={scrollContainerRef}
-            className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 w-full scroll-smooth"
+            className="grid grid-rows-2 grid-flow-col auto-cols-max gap-2 overflow-x-auto scrollbar-none py-1.5 w-full scroll-smooth"
           >
             {/* "All Offerings" Button */}
             <button

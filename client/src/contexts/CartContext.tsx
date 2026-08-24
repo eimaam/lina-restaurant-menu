@@ -12,6 +12,9 @@ interface CartContextType {
   ) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, newQuantity: number) => void;
+  incrementItem: (menuItemId: string) => void;
+  decrementItem: (menuItemId: string) => void;
+  getItemQuantity: (menuItemId: string) => number;
   clearCart: () => void;
   subtotal: number;
   totalItemsCount: number;
@@ -113,6 +116,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const getItemQuantity = (menuItemId: string): number => {
+    return items
+      .filter((i) => i.menuItem._id === menuItemId)
+      .reduce((sum, i) => sum + i.quantity, 0);
+  };
+
+  const incrementItem = (menuItemId: string) => {
+    // Find the first or most relevant item in cart for this menuItemId
+    const matchingItems = items.filter((i) => i.menuItem._id === menuItemId);
+    if (matchingItems.length > 0) {
+      const target = matchingItems[matchingItems.length - 1];
+      updateQuantity(target.id, target.quantity + 1);
+    }
+  };
+
+  const decrementItem = (menuItemId: string) => {
+    const matchingItems = items.filter((i) => i.menuItem._id === menuItemId);
+    if (matchingItems.length > 0) {
+      const target = matchingItems[matchingItems.length - 1];
+      if (target.quantity > 1) {
+        updateQuantity(target.id, target.quantity - 1);
+      } else {
+        removeItem(target.id);
+      }
+    }
+  };
+
   const clearCart = () => {
     setItems([]);
   };
@@ -127,6 +157,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addItem,
         removeItem,
         updateQuantity,
+        incrementItem,
+        decrementItem,
+        getItemQuantity,
         clearCart,
         subtotal,
         totalItemsCount,

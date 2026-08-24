@@ -10,6 +10,7 @@ export * from './components/Modal';
 export * from './components/Select';
 export * from './components/Table';
 export * from './components/Toast';
+export * from './components/ScrollToTop';
 
 // Utilities
 export * from './lib/utils';
