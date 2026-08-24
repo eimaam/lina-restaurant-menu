@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Download, Printer, QrCode, Sparkles } from 'lucide-react';
-import { Button, Input, Logo } from '@lina/ui';
+import { Download, Printer, QrCode, Sparkles, ShieldCheck, Code2 } from 'lucide-react';
+import { Button, Input, Logo, Badge, toast } from '@lina/ui';
 
 export const QRCodePage: React.FC = () => {
   const [tableNumber, setTableNumber] = useState('');
   const defaultDomain = import.meta.env.VITE_CLIENT_URL || 'https://linarestaurantandbar.com.ng';
   const [customDomain, setCustomDomain] = useState(() => defaultDomain);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   // Generate target URL
   const qrTargetUrl = tableNumber.trim()
@@ -17,27 +18,88 @@ export const QRCodePage: React.FC = () => {
     window.print();
   };
 
+  const handleDownloadSvg = () => {
+    try {
+      const svgElement = qrRef.current?.querySelector('svg');
+      if (!svgElement) return;
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = svgUrl;
+      downloadLink.download = `lina-qr-table-${tableNumber.trim() || 'menu'}.svg`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      toast.success('Vector SVG QR code downloaded!');
+    } catch (err) {
+      toast.error('Failed to download SVG.');
+    }
+  };
+
+  const handleDownloadPng = () => {
+    try {
+      const svgElement = qrRef.current?.querySelector('svg');
+      if (!svgElement) return;
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      canvas.width = 1000;
+      canvas.height = 1000;
+
+      img.onload = () => {
+        if (!ctx) return;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const pngUrl = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngUrl;
+        downloadLink.download = `lina-qr-table-${tableNumber.trim() || 'menu'}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        toast.success('High-res PNG QR code downloaded!');
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    } catch (err) {
+      toast.error('Failed to download PNG.');
+    }
+  };
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-2">
+            <Code2 size={14} />
+            <span>Developer Restricted Tooling</span>
+          </div>
           <h1 className="font-serif font-black text-2xl sm:text-3xl text-on-surface">
             Table & Bar Stand QR Generator
           </h1>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            Generate printable vector QR codes with automatic table deep-linking for dine-in guests
+            Generate printable vector QR codes with automatic table deep-linking for dine-in guests.
           </p>
         </div>
 
-        <Button onClick={handlePrint} variant="gold" size="sm" icon={<Printer size={14} />}>
-          Print Table Stand
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={handlePrint} variant="gold" size="sm" icon={<Printer size={14} />}>
+            Print Table Stand
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         {/* Controls Card */}
-        <div className="md:col-span-5 bg-surface-container-lowest rounded-3xl border border-outline-variant p-6 space-y-5 shadow-card">
+        <div className="print:hidden md:col-span-5 bg-surface-container-lowest rounded-3xl border border-outline-variant p-6 space-y-5 shadow-card">
           <h2 className="font-serif font-bold text-lg text-on-surface">QR Settings</h2>
 
           <Input
@@ -57,6 +119,15 @@ export const QRCodePage: React.FC = () => {
             <div className="font-bold text-on-surface">Live Destination URL:</div>
             <div className="font-mono text-[11px] text-primary break-all">{qrTargetUrl}</div>
           </div>
+
+          <div className="pt-2 flex flex-col gap-2">
+            <Button onClick={handleDownloadPng} variant="outline" size="sm" icon={<Download size={14} />} className="w-full justify-center">
+              Download High-Res PNG
+            </Button>
+            <Button onClick={handleDownloadSvg} variant="ghost" size="sm" icon={<Download size={14} />} className="w-full justify-center">
+              Download Vector SVG
+            </Button>
+          </div>
         </div>
 
         {/* Printable Stand Card Preview */}
@@ -70,7 +141,7 @@ export const QRCodePage: React.FC = () => {
           </div>
 
           {/* QR Code Canvas Frame */}
-          <div className="p-5 bg-white rounded-3xl border-2 border-outline-variant/60 shadow-md">
+          <div ref={qrRef} className="p-5 bg-white rounded-3xl border-2 border-outline-variant/60 shadow-md">
             <QRCodeSVG
               value={qrTargetUrl}
               size={220}

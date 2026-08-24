@@ -22,6 +22,14 @@ export const seedDatabase = async () => {
 
     await User.create([
       {
+        name: 'Lina Lead Developer',
+        email: 'dev@linarestaurant.com',
+        password: 'dev123456',
+        phone: '09165196622',
+        role: UserRole.Developer,
+        isActive: true,
+      },
+      {
         name: 'Lina Super Admin',
         email: 'admin@linarestaurant.com',
         password: 'admin123456',
@@ -38,7 +46,7 @@ export const seedDatabase = async () => {
         isActive: true,
       },
     ]);
-    console.log('✅ Users seeded: admin@linarestaurant.com and staff@linarestaurant.com');
+    console.log('✅ Users seeded: dev@linarestaurant.com, admin@linarestaurant.com and staff@linarestaurant.com');
 
     // 2. Seed Menu Categories
     console.log('📂 Seeding Menu Categories...');

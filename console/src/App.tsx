@@ -5,7 +5,7 @@ import { AuthGuard, GuestGuard, RoleGuard } from './guards/AuthGuard';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { UserRole } from '@lina/types';
 
-// Admin Management Pages
+// Management Pages
 import { AdminLoginPage } from './pages/AdminLoginPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { MenuManagementPage } from './pages/MenuManagementPage';
@@ -13,6 +13,7 @@ import { OrdersHistoryPage } from './pages/OrdersHistoryPage';
 import { BannerManagementPage } from './pages/BannerManagementPage';
 import { StaffManagementPage } from './pages/StaffManagementPage';
 import { QRCodePage } from './pages/QRCodePage';
+import { MenuPdfPage } from './pages/MenuPdfPage';
 
 export default function App() {
   return (
@@ -31,11 +32,16 @@ export default function App() {
             <Route path="/menu" element={<MenuManagementPage />} />
             <Route path="/orders" element={<OrdersHistoryPage />} />
             <Route path="/banners" element={<BannerManagementPage />} />
-            <Route path="/qr" element={<QRCodePage />} />
 
-            {/* Super Admin Only Routes */}
-            <Route element={<RoleGuard roles={[UserRole.Admin]} />}>
+            {/* Admin & Developer Routes */}
+            <Route element={<RoleGuard roles={[UserRole.Admin, UserRole.Developer]} />}>
               <Route path="/staff" element={<StaffManagementPage />} />
+              <Route path="/menu-pdf" element={<MenuPdfPage />} />
+            </Route>
+
+            {/* Developer ONLY Route */}
+            <Route element={<RoleGuard roles={[UserRole.Developer]} />}>
+              <Route path="/qr" element={<QRCodePage />} />
             </Route>
           </Route>
         </Route>

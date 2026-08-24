@@ -11,12 +11,14 @@ import {
   Menu as MenuIcon,
   X,
   ExternalLink,
+  FileText,
+  Code2,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Logo, Badge, cn } from '@lina/ui';
 
 export const AdminLayout: React.FC = () => {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isDeveloper } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -32,12 +34,20 @@ export const AdminLayout: React.FC = () => {
     { label: 'Orders Log', path: '/orders', icon: <ClipboardList size={18} /> },
     { label: 'Banners & Promos', path: '/banners', icon: <ImageIcon size={18} /> },
     ...(isAdmin
-      ? [{ label: 'Staff Management', path: '/staff', icon: <Users size={18} /> }]
+      ? [
+          { label: 'Staff Management', path: '/staff', icon: <Users size={18} /> },
+          { label: 'Printable Menu PDF', path: '/menu-pdf', icon: <FileText size={18} /> },
+        ]
       : []),
-    { label: 'Table QR Generator', path: '/qr', icon: <QrCode size={18} /> },
+    ...(isDeveloper
+      ? [{ label: 'Table QR Generator', path: '/qr', icon: <QrCode size={18} /> }]
+      : []),
   ];
 
   const clientUrl = import.meta.env.VITE_CLIENT_URL || 'https://linarestaurantandbar.com.ng';
+
+  const roleLabel = isDeveloper ? 'Developer' : user?.role === 'admin' ? 'Admin' : 'Staff';
+  const roleBadgeVariant = isDeveloper ? 'primary' : user?.role === 'admin' ? 'secondary' : 'neutral';
 
   return (
     <div className="min-h-screen bg-surface flex">
@@ -52,13 +62,13 @@ export const AdminLayout: React.FC = () => {
 
         {/* User Card */}
         <div className="p-4 mx-3 my-3 bg-surface rounded-2xl border border-outline-variant">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="truncate">
               <div className="text-xs font-bold text-on-surface truncate">{user?.name || 'Staff User'}</div>
               <div className="text-[11px] text-on-surface-variant truncate">{user?.email}</div>
             </div>
-            <Badge variant={isAdmin ? 'primary' : 'neutral'} size="sm">
-              {isAdmin ? 'Admin' : 'Staff'}
+            <Badge variant={roleBadgeVariant} size="sm">
+              {roleLabel}
             </Badge>
           </div>
         </div>
@@ -170,8 +180,8 @@ export const AdminLayout: React.FC = () => {
             </button>
             <Logo size="sm" showSubtitle={false} />
           </div>
-          <Badge variant={isAdmin ? 'primary' : 'neutral'} size="sm">
-            {isAdmin ? 'Admin' : 'Staff'}
+          <Badge variant={roleBadgeVariant} size="sm">
+            {roleLabel}
           </Badge>
         </header>
 

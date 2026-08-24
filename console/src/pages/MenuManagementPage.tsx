@@ -288,7 +288,11 @@ export const MenuManagementPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-surface-container">
                 {menuItems.map((item) => (
-                  <tr key={item._id} className="hover:bg-surface-container/40 transition-colors">
+                  <tr
+                    key={item._id}
+                    onClick={() => handleOpenItemDrawer(item)}
+                    className="hover:bg-surface-container-low transition-colors cursor-pointer"
+                  >
                     <td className="py-3.5 px-4">
                       <div className="font-serif font-bold text-sm text-on-surface">
                         {item.name}
@@ -338,7 +342,7 @@ export const MenuManagementPage: React.FC = () => {
                     </td>
 
                     {/* Stock Switch Toggle */}
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleToggleStock(item._id, item.isAvailable)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none ${
@@ -349,31 +353,28 @@ export const MenuManagementPage: React.FC = () => {
                       >
                         {item.isAvailable ? (
                           <>
-                            <CheckCircle2 size={14} />
-                            <span>In Stock</span>
+                            <CheckCircle2 size={13} />
+                            <span>Available in Kitchen</span>
                           </>
                         ) : (
                           <>
-                            <XCircle size={14} />
+                            <XCircle size={13} />
                             <span>Sold Out</span>
                           </>
                         )}
                       </button>
                     </td>
 
-                    {/* Edit / Delete Buttons */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {isAdmin && (
-                          <button
-                            onClick={() => handleOpenItemDrawer(item)}
-                            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
-                            title="Edit Item"
-                          >
-                            <Edit2 size={15} />
-                          </button>
-                        )}
-
+                    {/* Action Buttons */}
+                    <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleOpenItemDrawer(item)}
+                          className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
+                          title="Edit Item Details"
+                        >
+                          <Edit2 size={15} />
+                        </button>
                         {isAdmin && (
                           <button
                             onClick={() => handleDeleteItem(item._id, item.name)}

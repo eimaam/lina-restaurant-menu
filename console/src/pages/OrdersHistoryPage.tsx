@@ -147,15 +147,17 @@ export const OrdersHistoryPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-surface-container">
                 {orders.map((order) => (
-                  <tr key={order._id} className="hover:bg-surface-container/40 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-mono font-bold text-sm text-on-surface">
-                        #{order.orderNumber}
-                      </div>
-                      <div className="text-[11px] text-on-surface-variant">
-                        {new Date(order.createdAt).toLocaleString([], {
-                          dateStyle: 'short',
-                          timeStyle: 'short',
+                  <tr
+                    key={order._id}
+                    onClick={() => setSelectedOrder(order)}
+                    className="hover:bg-surface-container-low transition-colors cursor-pointer"
+                  >
+                    <td className="py-3.5 px-4 font-mono font-bold text-xs text-on-surface">
+                      #{order.orderNumber}
+                      <div className="text-[10px] text-on-surface-variant font-normal font-sans pt-0.5">
+                        {new Date(order.createdAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
                         })}
                       </div>
                     </td>
@@ -216,7 +218,7 @@ export const OrdersHistoryPage: React.FC = () => {
                     </td>
 
                     {/* Status Dropdown */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
                       <select
                         value={order.status}
                         onChange={(e) => handleUpdateStatus(order._id, e.target.value)}
@@ -232,7 +234,10 @@ export const OrdersHistoryPage: React.FC = () => {
 
                     <td className="py-3.5 px-4 text-right">
                       <button
-                        onClick={() => setSelectedOrder(order)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedOrder(order);
+                        }}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface transition-all cursor-pointer"
                       >
                         <Eye size={13} />

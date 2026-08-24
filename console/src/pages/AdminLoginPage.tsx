@@ -63,10 +63,7 @@ export const AdminLoginPage: React.FC = () => {
           <span>Return to Guest Menu</span>
         </a>
 
-        <div className="flex items-center gap-1 text-[11px] text-on-surface-variant/80">
-          <ShieldCheck size={14} className="text-primary" />
-          <span>Encrypted Session</span>
-        </div>
+       
       </div>
 
       {/* Main Authentication Card */}
@@ -163,10 +160,7 @@ export const AdminLoginPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Security Notice */}
-        <p className="text-[11px] text-center text-on-surface-variant/70 leading-relaxed">
-          Restricted access. Unauthorized access attempts are monitored and recorded.
-        </p>
+      
       </div>
 
       {/* Bottom Footer */}

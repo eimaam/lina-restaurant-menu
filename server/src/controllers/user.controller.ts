@@ -96,13 +96,20 @@ export const toggleUserStatus = async (req: Request, res: Response): Promise<voi
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const deleted = await User.findByIdAndDelete(id);
-    if (!deleted) {
+    const user = await User.findById(id);
+    if (!user) {
       res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
 
-    res.json({ success: true, message: 'User deleted successfully.' });
+    // Soft delete / Deactivate to protect audit trail and relational integrity
+    user.isActive = false;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Staff user account deactivated and safely removed from active directory.',
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

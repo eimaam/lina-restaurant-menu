@@ -142,17 +142,23 @@ export const BannerManagementPage: React.FC = () => {
           {banners.map((banner) => (
             <div
               key={banner._id}
-              className="bg-surface-container-lowest rounded-3xl border border-outline-variant p-6 space-y-4 shadow-card flex flex-col justify-between"
+              onClick={() => handleOpenModal(banner)}
+              className="bg-surface-container-lowest rounded-3xl border border-outline-variant p-5 space-y-4 shadow-card hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Badge variant="primary">{banner.bannerType}</Badge>
+                  <Badge variant="primary" size="sm">
+                    {banner.bannerType}
+                  </Badge>
                   <button
-                    onClick={() => handleToggleActive(banner._id)}
-                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full cursor-pointer ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleActive(banner._id);
+                    }}
+                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer transition-all ${
                       banner.isActive
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
+                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
+                        : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
                     }`}
                   >
                     {banner.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -173,7 +179,7 @@ export const BannerManagementPage: React.FC = () => {
                   Sort Order: {banner.sortOrder}
                 </span>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => handleOpenModal(banner)}
                     className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"

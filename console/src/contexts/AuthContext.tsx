@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (token: string, user: UserResponse) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  isDeveloper: boolean;
   isAdmin: boolean;
   isStaff: boolean;
 }
@@ -62,7 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const isAuthenticated = !!token && !!user;
-  const isAdmin = user?.role === UserRole.Admin;
+  const isDeveloper = user?.role === UserRole.Developer;
+  const isAdmin = user?.role === UserRole.Admin || isDeveloper;
   const isStaff = user?.role === UserRole.Staff;
 
   return (
@@ -74,6 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         isAuthenticated,
+        isDeveloper,
         isAdmin,
         isStaff,
       }}
