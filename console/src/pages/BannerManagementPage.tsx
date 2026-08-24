@@ -259,7 +259,7 @@ export const BannerManagementPage: React.FC = () => {
 
           <div className="pt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
-              Cancel
+              Close
             </Button>
             <Button type="submit" variant="gold">
               Save Banner

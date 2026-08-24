@@ -291,7 +291,7 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
         )}
 
         {/* Quantity and Submit Bar */}
-        <div className="pt-4 border-t border-surface-container flex items-center justify-between gap-4">
+        <div className="pt-4 border-t border-surface-container flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-1.5 border border-outline-variant">
             <button
               type="button"
@@ -310,7 +310,7 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
             </button>
           </div>
 
-          <Button onClick={handleConfirm} variant="gold" size="lg" className="flex-1">
+          <Button onClick={handleConfirm} variant="gold" size="md" className="flex-1">
             <span>Add to Cart</span>
             <span>•</span>
             <span className="font-serif">{formatNaira(totalCalculated)}</span>

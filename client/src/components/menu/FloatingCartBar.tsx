@@ -13,10 +13,10 @@ export const FloatingCartBar: React.FC = () => {
     <div className="fixed bottom-5 inset-x-4 max-w-md mx-auto z-40 animate-fade-in-up">
       <Link
         to="/checkout"
-        className="flex items-center justify-between p-4 bg-secondary text-on-secondary rounded-2xl border border-primary/40 hover:bg-secondary-hover active:scale-98 transition-all shadow-md"
+        className="flex items-center justify-between md:p-4 px-3 p-2 bg-secondary text-on-secondary rounded-xl md:rounded-2xl border border-primary/40 hover:bg-secondary-hover active:scale-98 transition-all shadow-md"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+          <div className="hidden md:flex w-10 h-10 rounded-xl bg-primary text-on-primary items-center justify-center font-bold text-sm">
             <ShoppingBag size={18} />
           </div>
           <div>

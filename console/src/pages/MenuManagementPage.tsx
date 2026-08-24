@@ -592,7 +592,7 @@ export const MenuManagementPage: React.FC = () => {
 
           <div className="pt-4 border-t border-surface-container flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={() => setItemDrawerOpen(false)}>
-              Cancel
+              Close
             </Button>
             <Button type="submit" variant="gold">
               Save Menu Item

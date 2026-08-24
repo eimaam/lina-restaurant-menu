@@ -9,7 +9,7 @@ export const StaffManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Create User Modal State
-  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const [createForm, setCreateForm] = useState({
     name: '',
     email: '',
@@ -19,9 +19,9 @@ export const StaffManagementPage: React.FC = () => {
   });
 
   // Reset Password Modal State
-  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState<boolean>(false);
   const [targetUser, setTargetUser] = useState<UserResponse | null>(null);
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState<string>('');
 
   const loadUsers = async () => {
     setLoading(true);
