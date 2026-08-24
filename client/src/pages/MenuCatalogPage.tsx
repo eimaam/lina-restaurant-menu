@@ -126,7 +126,7 @@ export const MenuCatalogPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search dishes, drinks, ingredients..."
-              className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/60 text-xs sm:text-sm rounded-2xl pl-10 pr-9 py-2.5 border border-outline-variant/70 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/60 text-xs sm:text-sm rounded-xl pl-10 pr-9 py-2.5 border border-outline-variant/70 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             {searchQuery && (
               <button
@@ -161,7 +161,7 @@ export const MenuCatalogPage: React.FC = () => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-primary text-on-primary rounded-lg text-xs font-bold shadow-xs cursor-pointer"
               >
                 Clear Search
               </button>

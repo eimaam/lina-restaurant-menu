@@ -41,9 +41,9 @@ export const AdminLayout: React.FC = () => {
 
   const adminNavItems = isAdmin
     ? [
-        { label: 'Staff Management', path: '/staff', icon: <Users size={18} /> },
-        { label: 'Printable Menu PDF', path: '/menu-pdf', icon: <FileText size={18} /> },
-      ]
+      { label: 'Staff Management', path: '/staff', icon: <Users size={18} /> },
+      { label: 'Printable Menu PDF', path: '/menu-pdf', icon: <FileText size={18} /> },
+    ]
     : [];
 
   const devNavItems = isDeveloper
@@ -71,9 +71,9 @@ export const AdminLayout: React.FC = () => {
         </div>
 
         {/* User Card */}
-        <div className="p-3.5 mx-3 mt-3.5 mb-2 bg-white rounded-2xl border border-outline-variant shadow-xs">
+        <div className="p-3.5 mx-3 mt-3.5 mb-2 bg-white rounded-xl border border-outline-variant shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#161311] text-primary flex items-center justify-center font-serif font-black text-sm border border-primary/30 shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-[#161311] text-primary flex items-center justify-center font-serif font-black text-sm border border-primary/30 shrink-0">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="flex-1 min-w-0">
@@ -100,7 +100,7 @@ export const AdminLayout: React.FC = () => {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group',
+                    'flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all group',
                     isActive
                       ? 'bg-[#161311] text-[#FAF7F2] font-bold shadow-xs'
                       : 'text-on-surface hover:text-[#161311] hover:bg-white border border-transparent hover:border-outline-variant/60'
@@ -131,7 +131,7 @@ export const AdminLayout: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group',
+                      'flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all group',
                       isActive
                         ? 'bg-[#161311] text-[#FAF7F2] font-bold shadow-xs'
                         : 'text-on-surface hover:text-[#161311] hover:bg-white border border-transparent hover:border-outline-variant/60'
@@ -163,7 +163,7 @@ export const AdminLayout: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group',
+                      'flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all group',
                       isActive
                         ? 'bg-[#161311] text-[#FAF7F2] font-bold shadow-xs'
                         : 'text-on-surface hover:text-[#161311] hover:bg-white border border-transparent hover:border-outline-variant/60'
@@ -189,14 +189,14 @@ export const AdminLayout: React.FC = () => {
             href={clientUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between w-full px-3.5 py-2 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-all"
+            className="flex items-center justify-between w-full px-3.5 py-2 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-all"
           >
             <span>Live Guest Menu</span>
             <ExternalLink size={13} />
           </a>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+            className="flex items-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
           >
             <LogOut size={15} />
             <span>Sign Out</span>
@@ -217,16 +217,16 @@ export const AdminLayout: React.FC = () => {
               <Logo size="sm" />
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Mobile User Card */}
-            <div className="p-3.5 mx-3 my-3 bg-white rounded-2xl border border-outline-variant">
+            <div className="p-3.5 mx-3 my-3 bg-white rounded-xl border border-outline-variant">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-[#161311] text-primary flex items-center justify-center font-serif font-black text-xs">
+                <div className="w-8 h-8 rounded-lg bg-[#161311] text-primary flex items-center justify-center font-serif font-black text-xs">
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -250,7 +250,7 @@ export const AdminLayout: React.FC = () => {
                       to={item.path}
                       onClick={() => setMobileOpen(false)}
                       className={cn(
-                        'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all',
+                        'flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all',
                         isActive
                           ? 'bg-[#161311] text-[#FAF7F2] font-bold shadow-xs'
                           : 'text-on-surface hover:bg-white'
@@ -273,7 +273,7 @@ export const AdminLayout: React.FC = () => {
             <div className="p-3.5 border-t border-outline-variant bg-white space-y-2">
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 w-full px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
               >
                 <LogOut size={15} />
                 <span>Sign Out</span>
@@ -290,7 +290,7 @@ export const AdminLayout: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="p-2 rounded-xl text-on-surface hover:bg-white border border-outline-variant/60"
+              className="p-2 rounded-lg text-on-surface hover:bg-white border border-outline-variant/60"
             >
               <MenuIcon size={18} />
             </button>

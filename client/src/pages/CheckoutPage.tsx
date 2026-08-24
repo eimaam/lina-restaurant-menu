@@ -163,13 +163,13 @@ export const CheckoutPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-4 bg-surface-container-lowest rounded-2xl border border-outline-variant text-xs text-on-surface-variant space-y-2">
+          <div className="p-4 bg-surface-container-lowest rounded-xl border border-outline-variant text-xs text-on-surface-variant space-y-2">
             <p>If WhatsApp did not automatically open on your device, click below:</p>
             <a
               href={placedOrderInfo.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-sm rounded-xl shadow-xs transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold text-sm rounded-lg shadow-xs transition-all"
             >
               <WhatsAppIcon size={18} />
               <span>Open in WhatsApp</span>
@@ -244,7 +244,7 @@ export const CheckoutPage: React.FC = () => {
               {items.map((item: CartItem) => (
                 <div
                   key={item.id}
-                  className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-4 flex items-start justify-between gap-4 shadow-card"
+                  className="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 flex items-start justify-between gap-4 shadow-card"
                 >
                   <div className="flex-1 space-y-1">
                     <h3 className="font-serif font-bold text-base text-on-surface">
@@ -285,7 +285,7 @@ export const CheckoutPage: React.FC = () => {
                       <Trash2 size={16} />
                     </button>
 
-                    <div className="flex items-center gap-2 bg-surface-container rounded-xl p-1 border border-outline-variant">
+                    <div className="flex items-center gap-2 bg-surface-container rounded-lg p-1 border border-outline-variant">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -317,7 +317,7 @@ export const CheckoutPage: React.FC = () => {
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 placeholder="Any general requests or notes for the cashier / kitchen..."
-                className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
+                className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -332,11 +332,10 @@ export const CheckoutPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFulfillmentType('dine_in')}
-                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
-                    fulfillmentType === 'dine_in'
-                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                  }`}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'dine_in'
+                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                    }`}
                 >
                   <Utensils size={18} className="mx-auto mb-1 text-primary" />
                   <div className="text-xs">Dine-In</div>
@@ -345,11 +344,10 @@ export const CheckoutPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFulfillmentType('pickup')}
-                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
-                    fulfillmentType === 'pickup'
-                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                  }`}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'pickup'
+                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                    }`}
                 >
                   <ShoppingBag size={18} className="mx-auto mb-1 text-primary" />
                   <div className="text-xs">Takeaway</div>
@@ -358,11 +356,10 @@ export const CheckoutPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFulfillmentType('delivery')}
-                  className={`p-3 rounded-2xl border text-center transition-all cursor-pointer ${
-                    fulfillmentType === 'delivery'
-                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                  }`}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'delivery'
+                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                    }`}
                 >
                   <Truck size={18} className="mx-auto mb-1 text-primary" />
                   <div className="text-xs">Delivery</div>
@@ -408,7 +405,7 @@ export const CheckoutPage: React.FC = () => {
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       placeholder="e.g. House 14, 4th Avenue, Gwarinpa Estate, Abuja"
-                      className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
+                      className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
                       required
                     />
                   </div>
@@ -433,7 +430,7 @@ export const CheckoutPage: React.FC = () => {
 
               {/* Error Box */}
               {errorMessage && (
-                <div className="flex items-center gap-2 p-3 bg-error-container text-on-error-container text-xs rounded-xl">
+                <div className="flex items-center gap-2 p-3 bg-error-container text-on-error-container text-xs rounded-lg">
                   <AlertCircle size={16} />
                   <span>{errorMessage}</span>
                 </div>

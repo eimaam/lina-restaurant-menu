@@ -73,7 +73,7 @@ export const OrdersHistoryPage: React.FC = () => {
 
         <button
           onClick={loadOrders}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-xs font-bold rounded-xl border border-outline-variant transition-all cursor-pointer select-none"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container hover:bg-surface-container-high text-xs font-bold rounded-lg border border-outline-variant transition-all cursor-pointer select-none"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           <span>Refresh Feed</span>
@@ -81,13 +81,13 @@ export const OrdersHistoryPage: React.FC = () => {
       </div>
 
       {/* Filters Toolbar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface-container-lowest p-3.5 rounded-2xl border border-outline-variant">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant">
         <div className="flex flex-wrap items-center gap-2">
           {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-surface-container-low text-xs rounded-xl px-3 py-2 border border-outline-variant focus:outline-none focus:border-primary font-medium"
+            className="bg-surface-container-low text-xs rounded-lg px-3 py-2 border border-outline-variant focus:outline-none focus:border-primary font-medium"
           >
             <option value="all">All Statuses</option>
             <option value={OrderStatus.Received}>Received</option>
@@ -101,7 +101,7 @@ export const OrdersHistoryPage: React.FC = () => {
           <select
             value={fulfillmentFilter}
             onChange={(e) => setFulfillmentFilter(e.target.value)}
-            className="bg-surface-container-low text-xs rounded-xl px-3 py-2 border border-outline-variant focus:outline-none focus:border-primary font-medium"
+            className="bg-surface-container-low text-xs rounded-lg px-3 py-2 border border-outline-variant focus:outline-none focus:border-primary font-medium"
           >
             <option value="all">All Fulfillment Modes</option>
             <option value="dine_in">Dine-In</option>
@@ -118,7 +118,7 @@ export const OrdersHistoryPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search order #, customer, table..."
-            className="w-full bg-surface-container-low text-xs rounded-xl pl-9 pr-4 py-2 border border-outline-variant focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container-low text-xs rounded-lg pl-9 pr-4 py-2 border border-outline-variant focus:outline-none focus:border-primary"
           />
         </div>
       </div>
@@ -189,8 +189,8 @@ export const OrdersHistoryPage: React.FC = () => {
                           order.fulfillmentType === 'dine_in'
                             ? 'primary'
                             : order.fulfillmentType === 'delivery'
-                            ? 'secondary'
-                            : 'neutral'
+                              ? 'secondary'
+                              : 'neutral'
                         }
                       >
                         {order.fulfillmentType}
@@ -262,7 +262,7 @@ export const OrdersHistoryPage: React.FC = () => {
         >
           <div className="space-y-5 text-xs">
             {/* Customer & Fulfillment Header */}
-            <div className="p-4 bg-surface-container-low rounded-2xl border border-outline-variant space-y-2">
+            <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-sm text-on-surface">
                   {selectedOrder.customer?.name || 'Guest'}
@@ -292,7 +292,7 @@ export const OrdersHistoryPage: React.FC = () => {
               <div className="font-bold text-xs uppercase tracking-wider text-on-surface-variant">
                 Items Ordered
               </div>
-              <div className="divide-y divide-surface-container bg-surface-container-lowest rounded-2xl border border-outline-variant p-3">
+              <div className="divide-y divide-surface-container bg-surface-container-lowest rounded-xl border border-outline-variant p-3">
                 {selectedOrder.items.map((item, idx) => (
                   <div key={idx} className="py-2 flex items-start justify-between gap-3 first:pt-0 last:pb-0">
                     <div>
@@ -324,7 +324,7 @@ export const OrdersHistoryPage: React.FC = () => {
             </div>
 
             {/* Subtotal Footer */}
-            <div className="p-4 bg-surface-container rounded-2xl flex items-center justify-between font-bold text-sm">
+            <div className="p-4 bg-surface-container rounded-xl flex items-center justify-between font-bold text-sm">
               <span>Total Logged Amount</span>
               <span className="font-serif text-lg text-secondary">
                 {formatNaira(selectedOrder.subtotal)}
@@ -338,7 +338,7 @@ export const OrdersHistoryPage: React.FC = () => {
                   href={selectedOrder.whatsappDeepLinkUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold rounded-xl text-xs transition-all shadow-xs"
+                  className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#25D366] hover:bg-[#1ebd59] text-white font-bold rounded-lg text-xs transition-all shadow-xs"
                 >
                   <WhatsAppIcon size={16} />
                   <span>Re-open WhatsApp Message</span>

@@ -55,14 +55,14 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <Link
             to="/menu"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xs rounded-xl shadow-xs transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xs rounded-lg shadow-xs transition-all"
           >
             <UtensilsCrossed size={14} />
             <span>Manage Menu & Stock</span>
           </Link>
           <Link
             to="/qr"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container-high hover:bg-surface-container text-on-surface font-semibold text-xs rounded-xl border border-outline-variant transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-surface-container-high hover:bg-surface-container text-on-surface font-semibold text-xs rounded-lg border border-outline-variant transition-all"
           >
             <QrCode size={14} />
             <span>QR Codes</span>
@@ -72,10 +72,10 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-5 space-y-2 shadow-card">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 space-y-2 shadow-card">
           <div className="flex items-center justify-between text-on-surface-variant">
             <span className="text-xs font-bold uppercase tracking-wider">Total Sales Volume</span>
-            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <TrendingUp size={18} />
             </div>
           </div>
@@ -87,10 +87,10 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-5 space-y-2 shadow-card">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 space-y-2 shadow-card">
           <div className="flex items-center justify-between text-on-surface-variant">
             <span className="text-xs font-bold uppercase tracking-wider">Today's Revenue</span>
-            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
               <Sparkles size={18} />
             </div>
           </div>
@@ -102,10 +102,10 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-5 space-y-2 shadow-card">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 space-y-2 shadow-card">
           <div className="flex items-center justify-between text-on-surface-variant">
             <span className="text-xs font-bold uppercase tracking-wider">Total Orders Log</span>
-            <div className="p-2 rounded-xl bg-secondary/10 text-secondary">
+            <div className="p-2 rounded-lg bg-secondary/10 text-secondary">
               <ClipboardList size={18} />
             </div>
           </div>
@@ -115,10 +115,10 @@ export const AdminDashboardPage: React.FC = () => {
           <p className="text-[11px] text-on-surface-variant">Dine-in, pickup & delivery</p>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-5 space-y-2 shadow-card">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 space-y-2 shadow-card">
           <div className="flex items-center justify-between text-on-surface-variant">
             <span className="text-xs font-bold uppercase tracking-wider">Status Breakdown</span>
-            <div className="p-2 rounded-xl bg-surface-container text-on-surface">
+            <div className="p-2 rounded-lg bg-surface-container text-on-surface">
               <Clock size={18} />
             </div>
           </div>

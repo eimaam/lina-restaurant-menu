@@ -9,7 +9,7 @@ export interface TableProps<T> extends AntTableProps<T> {
 
 export function Table<T extends object>({ className, ...props }: TableProps<T>) {
   return (
-    <div className="w-full overflow-x-auto rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm">
+    <div className="w-full overflow-x-auto rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm">
       <AntTable<T>
         className={cn('lina-custom-table', className)}
         pagination={{

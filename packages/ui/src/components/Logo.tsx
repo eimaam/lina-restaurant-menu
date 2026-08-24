@@ -55,7 +55,7 @@ export const Logo: React.FC<LogoProps> = ({
         <div className="flex items-center gap-2.5">
           <div
             style={{ width: `${cfg.heightPx}px`, height: `${cfg.heightPx}px` }}
-            className="rounded-xl bg-secondary flex items-center justify-center text-primary font-serif font-black text-xl border border-primary/40"
+            className="rounded-lg bg-secondary flex items-center justify-center text-primary font-serif font-black text-xl border border-primary/40"
           >
             L
           </div>

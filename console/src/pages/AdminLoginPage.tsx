@@ -82,9 +82,9 @@ export const AdminLoginPage: React.FC = () => {
         </div>
 
         {/* Login Form Card */}
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-5">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 sm:p-8 shadow-card space-y-5">
           {error && (
-            <div className="flex items-start gap-2.5 p-3.5 bg-error-container text-on-error-container text-xs rounded-xl border border-error/20">
+            <div className="flex items-start gap-2.5 p-3.5 bg-error-container text-on-error-container text-xs rounded-lg border border-error/20">
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               <span className="leading-snug">{error}</span>
             </div>
@@ -109,7 +109,7 @@ export const AdminLoginPage: React.FC = () => {
                   autoComplete="email"
                   required
                   disabled={loading}
-                  className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-2.5 border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs sm:text-sm rounded-lg pl-10 pr-4 py-2.5 border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
                 />
               </div>
             </div>
@@ -132,7 +132,7 @@ export const AdminLoginPage: React.FC = () => {
                   autoComplete="current-password"
                   required
                   disabled={loading}
-                  className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs sm:text-sm rounded-xl pl-10 pr-10 py-2.5 border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs sm:text-sm rounded-lg pl-10 pr-10 py-2.5 border border-outline-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
                 />
                 <button
                   type="button"

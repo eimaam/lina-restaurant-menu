@@ -22,8 +22,8 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({ banners }) => 
   const activeBanner = banners[currentIdx];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-tertiary text-on-secondary p-6 sm:p-8 border border-primary/30 transition-all">
-      
+    <div className="relative overflow-hidden rounded-xl bg-tertiary text-on-secondary p-6 sm:p-8 border border-primary/30 transition-all">
+
       <div className="relative z-10 max-w-2xl space-y-3">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/40 text-primary-fixed text-xs font-bold uppercase tracking-wider">
           <Sparkles size={14} className="text-primary" />
@@ -44,7 +44,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({ banners }) => 
           <div className="pt-2">
             <a
               href={activeBanner.actionLink}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xs rounded-xl shadow-xs transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-on-primary font-bold text-xs rounded-lg shadow-xs transition-all"
             >
               <span>Discover Special</span>
               <ArrowRight size={14} />
@@ -60,9 +60,8 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({ banners }) => 
             <button
               key={idx}
               onClick={() => setCurrentIdx(idx)}
-              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                idx === currentIdx ? 'w-6 bg-primary' : 'w-2 bg-white/30 hover:bg-white/50'
-              }`}
+              className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${idx === currentIdx ? 'w-6 bg-primary' : 'w-2 bg-white/30 hover:bg-white/50'
+                }`}
               aria-label={`Slide ${idx + 1}`}
             />
           ))}

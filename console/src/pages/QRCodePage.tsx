@@ -115,7 +115,7 @@ export const QRCodePage: React.FC = () => {
             onChange={(e) => setCustomDomain(e.target.value)}
           />
 
-          <div className="p-3.5 bg-surface-container-low rounded-2xl border border-outline-variant text-xs space-y-1">
+          <div className="p-3.5 bg-surface-container-low rounded-xl border border-outline-variant text-xs space-y-1">
             <div className="font-bold text-on-surface">Live Destination URL:</div>
             <div className="font-mono text-[11px] text-primary break-all">{qrTargetUrl}</div>
           </div>

@@ -155,11 +155,10 @@ export const BannerManagementPage: React.FC = () => {
                       e.stopPropagation();
                       handleToggleActive(banner._id);
                     }}
-                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                      banner.isActive
+                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer transition-all ${banner.isActive
                         ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
                         : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
-                    }`}
+                      }`}
                   >
                     {banner.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                     <span>{banner.isActive ? 'Active' : 'Inactive'}</span>
@@ -224,7 +223,7 @@ export const BannerManagementPage: React.FC = () => {
               value={bannerForm.subtitle}
               onChange={(e) => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
               placeholder="Short promo text shown on digital menu..."
-              className="w-full bg-surface-container-low text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
+              className="w-full bg-surface-container-low text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -235,7 +234,7 @@ export const BannerManagementPage: React.FC = () => {
             <select
               value={bannerForm.bannerType}
               onChange={(e) => setBannerForm({ ...bannerForm, bannerType: e.target.value as any })}
-              className="w-full bg-surface-container-low text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary font-medium"
+              className="w-full bg-surface-container-low text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary font-medium"
             >
               <option value={BannerType.MealPromo}>Meal Promo</option>
               <option value={BannerType.Announcement}>General Announcement</option>

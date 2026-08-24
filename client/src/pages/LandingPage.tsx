@@ -109,7 +109,7 @@ export const LandingPage: React.FC = () => {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto text-center space-y-8">
               {/* Brand Logo Visual Badge */}
-              <div className="inline-flex items-center justify-center p-3 sm:p-4 rounded-2xl bg-[#1E1A17]/90 border border-[#3D332A] shadow-xs backdrop-blur-xs">
+              <div className="inline-flex items-center justify-center p-3 sm:p-4 rounded-xl bg-[#1E1A17]/90 border border-[#3D332A] shadow-xs backdrop-blur-xs">
                 <Logo size="xl" />
               </div>
 
@@ -185,10 +185,10 @@ export const LandingPage: React.FC = () => {
               {steps.map((step) => (
                 <div
                   key={step.num}
-                  className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 relative flex flex-col justify-between space-y-3 shadow-xs"
+                  className="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 relative flex flex-col justify-between space-y-3 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/60">
+                    <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/60">
                       {step.icon}
                     </div>
                     <span className="font-serif font-black text-2xl text-primary/40">
@@ -229,11 +229,11 @@ export const LandingPage: React.FC = () => {
               {pillars.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 flex flex-col justify-between space-y-4 hover:border-primary/60 transition-colors shadow-xs"
+                  className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 flex flex-col justify-between space-y-4 hover:border-primary/60 transition-colors shadow-xs"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/50">
+                      <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/50">
                         {item.icon}
                       </div>
                       {
@@ -325,7 +325,7 @@ export const LandingPage: React.FC = () => {
             <div className="bg-surface-container-lowest rounded-3xl border border-outline-variant p-8 sm:p-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 shadow-xs">
               {/* Address */}
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
+                <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
                   <GoogleMapsIcon size={20} className="text-primary" />
                 </div>
                 <h3 className="font-serif font-bold text-lg text-on-surface">
@@ -347,7 +347,7 @@ export const LandingPage: React.FC = () => {
 
               {/* Opening Hours */}
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
+                <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
                   <Clock size={20} className="text-primary" />
                 </div>
                 <h3 className="font-serif font-bold text-lg text-on-surface">
@@ -368,7 +368,7 @@ export const LandingPage: React.FC = () => {
 
               {/* Direct Contacts */}
               <div className="space-y-3 md:col-span-2 lg:col-span-1">
-                <div className="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
+                <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20">
                   <PhoneCall size={20} className="text-primary" />
                 </div>
                 <h3 className="font-serif font-bold text-lg text-on-surface">

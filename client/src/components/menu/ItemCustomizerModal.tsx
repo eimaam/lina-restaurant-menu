@@ -192,11 +192,10 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
                     key={size.name}
                     type="button"
                     onClick={() => setSelectedSize(size)}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-primary bg-primary-container/40 text-on-primary-container ring-2 ring-primary/20 font-bold'
-                        : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface'
-                    }`}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
+                      ? 'border-primary bg-primary-container/40 text-on-primary-container ring-2 ring-primary/20 font-bold'
+                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface'
+                      }`}
                   >
                     <div>
                       <div className="text-sm">{size.name}</div>
@@ -236,19 +235,17 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
                         key={opt.name}
                         type="button"
                         onClick={() => handleToggleOption(group, opt.name)}
-                        className={`flex items-center justify-between w-full p-3 rounded-2xl border transition-all cursor-pointer ${
-                          isChecked
-                            ? 'border-primary bg-primary-container/30 text-on-primary-container font-semibold'
-                            : 'border-outline-variant hover:border-primary/30 bg-surface-container-low text-on-surface'
-                        }`}
+                        className={`flex items-center justify-between w-full p-3 rounded-xl border transition-all cursor-pointer ${isChecked
+                          ? 'border-primary bg-primary-container/30 text-on-primary-container font-semibold'
+                          : 'border-outline-variant hover:border-primary/30 bg-surface-container-low text-on-surface'
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
                           <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
-                              isChecked
-                                ? 'border-primary bg-primary text-on-primary'
-                                : 'border-outline-variant'
-                            }`}
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${isChecked
+                              ? 'border-primary bg-primary text-on-primary'
+                              : 'border-outline-variant'
+                              }`}
                           >
                             {isChecked && <Check size={10} strokeWidth={3} />}
                           </div>
@@ -278,13 +275,13 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
             value={specialInstructions}
             onChange={(e) => setSpecialInstructions(e.target.value)}
             placeholder="e.g. Extra pepper, no onions, pack stew separately..."
-            className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
+            className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
           />
         </div>
 
         {/* Validation Alert */}
         {validationError && (
-          <div className="flex items-center gap-2 p-3 bg-error-container text-on-error-container text-xs rounded-xl">
+          <div className="flex items-center gap-2 p-3 bg-error-container text-on-error-container text-xs rounded-lg">
             <AlertCircle size={16} />
             <span>{validationError}</span>
           </div>
@@ -292,11 +289,11 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
 
         {/* Quantity and Submit Bar */}
         <div className="pt-4 border-t border-surface-container flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 bg-surface-container rounded-2xl p-1.5 border border-outline-variant">
+          <div className="flex items-center gap-3 bg-surface-container rounded-xl p-1.5 border border-outline-variant">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 rounded-xl bg-surface hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-all cursor-pointer"
             >
               <Minus size={14} />
             </button>
@@ -304,7 +301,7 @@ export const ItemCustomizerModal: React.FC<ItemCustomizerModalProps> = ({
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 rounded-xl bg-surface hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-all cursor-pointer"
+              className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-all cursor-pointer"
             >
               <Plus size={14} />
             </button>

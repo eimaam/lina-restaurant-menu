@@ -57,7 +57,7 @@ export const PublicHeader: React.FC = () => {
           <Link
             to="/checkout"
             className={cn(
-              'flex items-center gap-2.5 px-3.5 py-2 rounded-xl border transition-all select-none',
+              'flex items-center gap-2.5 px-3.5 py-2 rounded-lg border transition-all select-none',
               totalItemsCount > 0
                 ? 'bg-primary hover:bg-primary-hover text-on-primary border-primary shadow-xs'
                 : 'bg-surface-container text-on-surface-variant border-outline-variant hover:bg-surface-container-high'

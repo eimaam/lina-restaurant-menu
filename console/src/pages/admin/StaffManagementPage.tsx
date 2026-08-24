@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, UserPlus, KeyRound, CheckCircle2, XCircle, Trash2, Shield, User } from 'lucide-react';
-import { adminApi } from '../lib/api';
-import { Button, Input, Modal, Badge, toast } from '@lina/ui';
-import { UserRole, type UserResponse } from '@lina/types';
+import { adminApi } from '../../lib/api';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Modal } from '../../components/ui/Modal';
+import { Badge } from '../../components/ui/Badge';
+import { toast } from '../../components/ui/Toast';
+import { UserRole, type UserResponse } from '../../types';
 
 export const StaffManagementPage: React.FC = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Create User Modal State
-  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createForm, setCreateForm] = useState({
     name: '',
     email: '',
@@ -19,9 +23,9 @@ export const StaffManagementPage: React.FC = () => {
   });
 
   // Reset Password Modal State
-  const [resetModalOpen, setResetModalOpen] = useState<boolean>(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
   const [targetUser, setTargetUser] = useState<UserResponse | null>(null);
-  const [newPassword, setNewPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState('');
 
   const loadUsers = async () => {
     setLoading(true);
@@ -138,17 +142,9 @@ export const StaffManagementPage: React.FC = () => {
               <tbody className="divide-y divide-surface-container">
                 {users.map((u) => {
                   const uid = u._id || u.id || '';
-                  const isDev = u.role === UserRole.Developer;
                   const isAdmin = u.role === UserRole.Admin;
                   return (
-                    <tr
-                      key={uid}
-                      onClick={() => {
-                        setTargetUser(u);
-                        setResetModalOpen(true);
-                      }}
-                      className="hover:bg-surface-container-low transition-colors cursor-pointer"
-                    >
+                    <tr key={uid} className="hover:bg-surface-container/40 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center font-bold text-xs text-on-surface">
@@ -166,15 +162,8 @@ export const StaffManagementPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <Badge
-                          variant={isDev ? 'primary' : isAdmin ? 'secondary' : 'neutral'}
-                          size="sm"
-                        >
-                          {isDev ? (
-                            <span className="flex items-center gap-1">
-                              <Shield size={11} /> Lead Developer
-                            </span>
-                          ) : isAdmin ? (
+                        <Badge variant={isAdmin ? 'primary' : 'neutral'} size="sm">
+                          {isAdmin ? (
                             <span className="flex items-center gap-1">
                               <Shield size={11} /> Super Admin
                             </span>
@@ -186,20 +175,20 @@ export const StaffManagementPage: React.FC = () => {
                         </Badge>
                       </td>
 
-                      <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3.5 px-4 text-center">
                         <button
                           onClick={() => handleToggleStatus(uid)}
-                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${u.isActive
-                              ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                              : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-all ${u.isActive
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-rose-100 text-rose-800'
                             }`}
                         >
-                          {u.isActive ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                          <span>{u.isActive ? 'Active (Click to Deactivate)' : 'Deactivated (Click to Activate)'}</span>
+                          {u.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                          <span>{u.isActive ? 'Active' : 'Disabled'}</span>
                         </button>
                       </td>
 
-                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => {
@@ -215,7 +204,7 @@ export const StaffManagementPage: React.FC = () => {
                           <button
                             onClick={() => handleDeleteUser(uid, u.name)}
                             className="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/40 transition-all"
-                            title="Deactivate & Remove User"
+                            title="Delete User"
                           >
                             <Trash2 size={15} />
                           </button>

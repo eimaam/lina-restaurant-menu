@@ -104,21 +104,21 @@ export const MenuPdfPage: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Style Selector */}
-          <div className="flex items-center p-1 bg-surface-container rounded-2xl border border-outline-variant text-xs">
+          <div className="flex items-center p-1 bg-surface-container rounded-xl border border-outline-variant text-xs">
             <button
               onClick={() => setSelectedStyle('midnight')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${selectedStyle === 'midnight'
-                  ? 'bg-[#161311] text-[#FAF7F2] shadow-xs'
-                  : 'text-on-surface-variant hover:text-on-surface'
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${selectedStyle === 'midnight'
+                ? 'bg-[#161311] text-[#FAF7F2] shadow-xs'
+                : 'text-on-surface-variant hover:text-on-surface'
                 }`}
             >
               Midnight Gold
             </button>
             <button
               onClick={() => setSelectedStyle('classic')}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${selectedStyle === 'classic'
-                  ? 'bg-amber-100 text-amber-950 shadow-xs'
-                  : 'text-on-surface-variant hover:text-on-surface'
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${selectedStyle === 'classic'
+                ? 'bg-amber-100 text-amber-950 shadow-xs'
+                : 'text-on-surface-variant hover:text-on-surface'
                 }`}
             >
               Classic Cream
@@ -166,7 +166,7 @@ export const MenuPdfPage: React.FC = () => {
             {selectedStyle === 'midnight' && (
               <div className="bg-[#161311] text-[#FAF7F2] shadow-2xl p-8 sm:p-12 space-y-12 font-serif min-h-[297mm]">
                 {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-4 border-[#C5943A]/50 rounded-2xl relative bg-[#1E1A17] html2pdf__page-break">
+                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] html2pdf__page-break">
                   {/* Corner Luxury Frame Accents */}
                   <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#C5943A]" />
                   <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#C5943A]" />
@@ -199,7 +199,7 @@ export const MenuPdfPage: React.FC = () => {
 
                   {/* Bottom QR Code Block */}
                   <div className="pb-4 flex flex-col items-center space-y-2.5">
-                    <div className="p-3 bg-white rounded-2xl shadow-lg border-2 border-[#C5943A]">
+                    <div className="p-3 bg-white rounded-xl shadow-lg border-2 border-[#C5943A]">
                       <QRCodeSVG
                         value={`${defaultDomain}/menu`}
                         size={110}
@@ -283,7 +283,7 @@ export const MenuPdfPage: React.FC = () => {
             {selectedStyle === 'classic' && (
               <div className="bg-[#FAF7F2] text-[#161311] shadow-2xl p-8 sm:p-12 space-y-12 font-serif min-h-[297mm]">
                 {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-2 border-amber-900/30 rounded-2xl relative bg-[#FFFDF9] html2pdf__page-break">
+                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] html2pdf__page-break">
                   <div className="pt-6">
                     <Logo size="2xl" className="justify-center" />
                   </div>
@@ -308,7 +308,7 @@ export const MenuPdfPage: React.FC = () => {
 
                   {/* Cover QR Badge */}
                   <div className="pb-4 flex flex-col items-center space-y-2.5">
-                    <div className="p-3 bg-white rounded-2xl shadow-md border-2 border-amber-300">
+                    <div className="p-3 bg-white rounded-xl shadow-md border-2 border-amber-300">
                       <QRCodeSVG
                         value={`${defaultDomain}/menu`}
                         size={110}

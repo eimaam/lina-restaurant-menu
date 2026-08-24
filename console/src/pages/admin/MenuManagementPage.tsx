@@ -13,25 +13,23 @@ import {
   Flame,
   Sparkles,
 } from 'lucide-react';
-import { adminApi, publicApi } from '../lib/api';
-import {
-  formatNaira,
-  Button,
-  Input,
-  Select,
-  Modal,
-  Drawer,
-  Badge,
-  toast,
-} from '@lina/ui';
-import { useAuth } from '../contexts/AuthContext';
+import { adminApi, publicApi } from '../../lib/api';
+import { formatNaira } from '../../lib/utils';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Select } from '../../components/ui/Select';
+import { Modal } from '../../components/ui/Modal';
+import { Drawer } from '../../components/ui/Drawer';
+import { Badge } from '../../components/ui/Badge';
+import { toast } from '../../components/ui/Toast';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   OptionSelectionType,
   type MenuCategoryResponse,
   type MenuItemResponse,
   type MenuItemSize,
   type MenuItemOptionGroup,
-} from '@lina/types';
+} from '../../types';
 
 export const MenuManagementPage: React.FC = () => {
   const { isAdmin } = useAuth();
@@ -286,11 +284,7 @@ export const MenuManagementPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-surface-container">
                 {menuItems.map((item) => (
-                  <tr
-                    key={item._id}
-                    onClick={() => handleOpenItemDrawer(item)}
-                    className="hover:bg-surface-container-low transition-colors cursor-pointer"
-                  >
+                  <tr key={item._id} className="hover:bg-surface-container/40 transition-colors">
                     <td className="py-3.5 px-4">
                       <div className="font-serif font-bold text-sm text-on-surface">
                         {item.name}
@@ -340,7 +334,7 @@ export const MenuManagementPage: React.FC = () => {
                     </td>
 
                     {/* Stock Switch Toggle */}
-                    <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-3.5 px-4 text-center">
                       <button
                         onClick={() => handleToggleStock(item._id, item.isAvailable)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer select-none ${item.isAvailable
@@ -350,28 +344,31 @@ export const MenuManagementPage: React.FC = () => {
                       >
                         {item.isAvailable ? (
                           <>
-                            <CheckCircle2 size={13} />
-                            <span>Available in Kitchen</span>
+                            <CheckCircle2 size={14} />
+                            <span>In Stock</span>
                           </>
                         ) : (
                           <>
-                            <XCircle size={13} />
+                            <XCircle size={14} />
                             <span>Sold Out</span>
                           </>
                         )}
                       </button>
                     </td>
 
-                    {/* Action Buttons */}
-                    <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleOpenItemDrawer(item)}
-                          className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
-                          title="Edit Item Details"
-                        >
-                          <Edit2 size={15} />
-                        </button>
+                    {/* Edit / Delete Buttons */}
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleOpenItemDrawer(item)}
+                            className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-all"
+                            title="Edit Item"
+                          >
+                            <Edit2 size={15} />
+                          </button>
+                        )}
+
                         {isAdmin && (
                           <button
                             onClick={() => handleDeleteItem(item._id, item.name)}
@@ -589,7 +586,7 @@ export const MenuManagementPage: React.FC = () => {
 
           <div className="pt-4 border-t border-surface-container flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={() => setItemDrawerOpen(false)}>
-              Close
+              Cancel
             </Button>
             <Button type="submit" variant="gold">
               Save Menu Item

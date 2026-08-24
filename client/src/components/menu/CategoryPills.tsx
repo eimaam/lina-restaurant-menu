@@ -47,7 +47,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             <button
               onClick={() => onSelectCategory('all')}
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 border',
+                'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 border',
                 selectedCategory === 'all'
                   ? 'bg-[#161311] text-[#FAF7F2] border-[#161311] shadow-xs'
                   : 'bg-white text-on-surface border-[#D9D2C5] hover:border-primary hover:text-primary'
@@ -77,7 +77,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
                   key={category._id}
                   onClick={() => onSelectCategory(category._id)}
                   className={cn(
-                    'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 border',
+                    'inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold tracking-wide uppercase whitespace-nowrap transition-all duration-150 cursor-pointer select-none shrink-0 border',
                     isSelected
                       ? 'bg-[#161311] text-[#FAF7F2] border-[#161311] shadow-xs'
                       : 'bg-white text-on-surface border-[#D9D2C5] hover:border-primary hover:text-primary'

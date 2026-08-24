@@ -54,13 +54,12 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onSelect }) => {
 
   return (
     <div
-      className={`group relative rounded-3xl border p-5 flex flex-col justify-between transition-all duration-200 ${
-        !isAvailable
-          ? 'border-outline-variant/40 opacity-60 bg-surface-container-low'
-          : cartQuantity > 0
+      className={`group relative rounded-3xl border p-5 flex flex-col justify-between transition-all duration-200 ${!isAvailable
+        ? 'border-outline-variant/40 opacity-60 bg-surface-container-low'
+        : cartQuantity > 0
           ? 'bg-[#FAF7F2] border-primary/60 shadow-ambient ring-1 ring-primary/30'
           : 'bg-surface-container-lowest border-outline-variant/70 hover:border-primary/50 hover:shadow-ambient hover:-translate-y-1'
-      }`}
+        }`}
     >
       <div>
         {/* Top Badges & Cart Indicator */}
@@ -120,10 +119,10 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onSelect }) => {
         {/* Action Button / Quantity Controls */}
         {isAvailable && cartQuantity > 0 && !hasCustomizations ? (
           /* Inline Quantity Stepper for Simple Items */
-          <div className="inline-flex items-center bg-[#161311] text-[#FAF7F2] rounded-2xl p-1 shadow-sm border border-[#3D332A]">
+          <div className="inline-flex items-center bg-[#161311] text-[#FAF7F2] rounded-xl p-1 shadow-sm border border-[#3D332A]">
             <button
               onClick={handleDecrement}
-              className="w-7 h-7 rounded-xl flex items-center justify-center text-on-primary-variant hover:text-primary hover:bg-[#2E2722] active:scale-90 transition-all cursor-pointer"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-on-primary-variant hover:text-primary hover:bg-[#2E2722] active:scale-90 transition-all cursor-pointer"
               title="Reduce quantity or remove"
             >
               <Minus size={14} />
@@ -133,7 +132,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onSelect }) => {
             </span>
             <button
               onClick={handleIncrement}
-              className="w-7 h-7 rounded-xl flex items-center justify-center text-on-primary-variant hover:text-primary hover:bg-[#2E2722] active:scale-90 transition-all cursor-pointer"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-on-primary-variant hover:text-primary hover:bg-[#2E2722] active:scale-90 transition-all cursor-pointer"
               title="Add one more"
             >
               <Plus size={14} />
@@ -144,15 +143,14 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onSelect }) => {
           <button
             onClick={handleSimpleAdd}
             disabled={!isAvailable}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 select-none ${
-              isAvailable
-                ? hasCustomizations
-                  ? cartQuantity > 0
-                    ? 'bg-secondary text-on-secondary shadow-wine'
-                    : 'bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary border border-primary/30 shadow-xs'
-                  : 'bg-primary hover:bg-primary-hover text-on-primary shadow-xs'
-                : 'bg-surface-container text-on-surface-variant cursor-not-allowed'
-            }`}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer active:scale-95 select-none ${isAvailable
+              ? hasCustomizations
+                ? cartQuantity > 0
+                  ? 'bg-secondary text-on-secondary shadow-wine'
+                  : 'bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary border border-primary/30 shadow-xs'
+                : 'bg-primary hover:bg-primary-hover text-on-primary shadow-xs'
+              : 'bg-surface-container text-on-surface-variant cursor-not-allowed'
+              }`}
           >
             {hasCustomizations ? (
               <>
