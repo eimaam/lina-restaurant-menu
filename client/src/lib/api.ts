@@ -4,6 +4,8 @@ import type {
   MenuItemResponse,
   BannerResponse,
   OrderResponse,
+  DeliveryZoneResponse,
+  RestaurantSettings,
 } from '@lina/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -34,6 +36,16 @@ export const publicApi = {
 
   getBanners: async (): Promise<BannerResponse[]> => {
     const res = await api.get('/banners');
+    return res.data.data;
+  },
+
+  getDeliveryZones: async (): Promise<DeliveryZoneResponse[]> => {
+    const res = await api.get('/delivery-zones');
+    return res.data.data;
+  },
+
+  getSettings: async (): Promise<RestaurantSettings> => {
+    const res = await api.get('/settings');
     return res.data.data;
   },
 

@@ -15,9 +15,13 @@ export interface IOrder extends Document {
   };
   fulfillmentType: FulfillmentTypeType;
   tableNumber?: string;
+  deliveryZoneId?: string;
+  deliveryZoneName?: string;
+  deliveryFee?: number;
   deliveryAddress?: string;
   items: OrderItemLine[];
   subtotal: number;
+  total?: number;
   orderNotes?: string;
   status: OrderStatusType;
   whatsappDeepLinkUrl?: string;
@@ -63,9 +67,13 @@ const OrderSchema = new Schema<IOrder>(
       index: true,
     },
     tableNumber: { type: String, trim: true },
+    deliveryZoneId: { type: Schema.Types.ObjectId, ref: 'DeliveryZone' },
+    deliveryZoneName: { type: String, trim: true },
+    deliveryFee: { type: Number, default: 0 },
     deliveryAddress: { type: String, trim: true },
     items: { type: [OrderItemLineSchema], required: true },
     subtotal: { type: Number, required: true, min: 0 },
+    total: { type: Number, min: 0 },
     orderNotes: { type: String, trim: true },
     status: {
       type: String,

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { PublicHeader } from '../components/layout/PublicHeader';
 import { PublicFooter } from '../components/layout/PublicFooter';
-import { Button, Logo, WhatsAppIcon, GoogleMapsIcon } from '@lina/ui';
+import { Button, Logo, WhatsAppIcon, InstagramIcon, TikTokIcon, FacebookIcon, GoogleMapsIcon } from '@lina/ui';
 import heroBg from '../assets/images/hero-bg.jpg';
 
 export const LandingPage: React.FC = () => {
@@ -28,35 +28,35 @@ export const LandingPage: React.FC = () => {
       id: 'kitchen',
       title: 'Authentic Kitchen',
       tag: 'Native Delicacies',
-      desc: 'Rich native soups, seafood fisherman soup, village rice, isi ewu, and local delicacies cooked with authentic herbs and traditional recipes.',
+      desc: 'Rich native soups, seafood fisherman soup, village rice, isi ewu and local delicacies cooked with authentic herbs and traditional recipes.',
       icon: <UtensilsCrossed size={22} className="text-primary" />,
     },
     {
       id: 'grills',
       title: 'Grills & Shawarma Bar',
       tag: 'Charcoal & Smoked',
-      desc: 'Charcoal-roasted whole catfish, spicy asun, and loaded beef/chicken shawarmas with single and double sausage options.',
+      desc: 'Charcoal-roasted whole catfish, spicy asun and loaded beef/chicken shawarmas with single and double sausage options.',
       icon: <Flame size={22} className="text-secondary" />,
     },
     {
       id: 'bar',
       title: 'Lounge & Premium Bar',
       // tag: 'Craft Mixology',
-      desc: 'Signature cocktails, refreshing mocktails, ice-cold beers, and top-shelf spirits served in our relaxing dining bar.',
+      desc: 'Signature cocktails, refreshing mocktails, ice-cold beers and top-shelf spirits served in our relaxing dining bar.',
       icon: <Wine size={22} className="text-primary" />,
     },
     {
       id: 'lounge',
       title: 'VIP Lounge & Shisha',
       tag: 'Nightlife & Ambience',
-      desc: 'Ambient lounge space featuring smooth, flavored shisha pots, plush seating, and curated music for evening unwind.',
+      desc: 'Ambient lounge space featuring smooth, flavored shisha pots, plush seating and curated music for evening unwind.',
       icon: <Armchair size={22} className="text-secondary" />,
     },
     {
       id: 'street-food',
       title: 'Evening Street Food Corner',
       tag: 'Opens 5:00 PM Daily',
-      desc: 'Quick evening bites, grilled treats, suya, and street-style favorites prepared fresh on the open coals every evening.',
+      desc: 'Quick evening bites, grilled treats, suya and street-style favorites prepared fresh on the open coals every evening.',
       icon: <Clock size={22} className="text-primary" />,
     },
     {
@@ -290,7 +290,7 @@ export const LandingPage: React.FC = () => {
                 </h2>
 
                 <p className="text-sm text-[#DDD7CB] leading-relaxed max-w-2xl">
-                  Full-scale catering for birthdays, private parties, corporate events, and traditional ceremonies. We bring live grill stations, rich native soups, cocktail bars, and Arabian tea service directly to your venue.
+                  Full-scale catering for birthdays, private parties, corporate events and traditional ceremonies. We bring live grill stations, rich native soups, cocktail bars and Arabian tea service directly to your venue.
                 </p>
               </div>
 
@@ -374,7 +374,7 @@ export const LandingPage: React.FC = () => {
                 <h3 className="font-serif font-bold text-lg text-on-surface">
                   Direct Contacts
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <a
                     href="https://wa.me/2349165196622"
                     target="_blank"
@@ -382,15 +382,46 @@ export const LandingPage: React.FC = () => {
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <WhatsAppIcon size={16} className="text-[#25D366]" />
-                    <span>09165196622</span>
+                    <span>09165196622 (WhatsApp)</span>
                   </a>
                   <a
                     href="tel:09165196622"
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <PhoneCall size={16} className="text-primary" />
-                    <span>09165196622</span>
+                    <span>09165196622 (Direct Line)</span>
                   </a>
+
+                  {/* Social Handles */}
+                  <div className="pt-2 border-t border-outline-variant/60 flex items-center gap-3">
+                    <a
+                      href="https://www.tiktok.com/@lina_restaurant?_r=1&_t=ZS-999dMxzyRjV"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary transition-all"
+                      title="TikTok @lina_restaurant"
+                    >
+                      <TikTokIcon size={16} className="text-[#EE1D52]" />
+                    </a>
+                    <a
+                      href="https://www.instagram.com/lina_restaurant_and_streetfood?igsi=MTBndGluYnhyNDY5aA=="
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary transition-all"
+                      title="Instagram @lina_restaurant_and_streetfood"
+                    >
+                      <InstagramIcon size={16} className="text-[#E4405F]" />
+                    </a>
+                    <a
+                      href="https://www.facebook.com/share/1EjgzWAGvT/?mibextid=wwXIfr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary transition-all"
+                      title="Facebook Page"
+                    >
+                      <FacebookIcon size={16} className="text-[#1877F2]" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

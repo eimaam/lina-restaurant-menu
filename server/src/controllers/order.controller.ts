@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Order } from '../models/Order.model';
-import { OrderStatus } from '../types';
+import { OrderStatus, FulfillmentType } from '../types';
+import { logAudit } from '../services/audit.service';
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -8,9 +9,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       customer,
       fulfillmentType,
       tableNumber,
+      deliveryZoneId,
+      deliveryZoneName,
+      deliveryFee,
       deliveryAddress,
       items,
       subtotal,
+      total,
       orderNotes,
       whatsappDeepLinkUrl,
     } = req.body;
@@ -29,12 +34,29 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       customer: customer || {},
       fulfillmentType,
       tableNumber: tableNumber?.trim(),
+      deliveryZoneId,
+      deliveryZoneName: deliveryZoneName?.trim(),
+      deliveryFee: Number(deliveryFee) || 0,
       deliveryAddress: deliveryAddress?.trim(),
       items,
       subtotal: Number(subtotal) || 0,
+      total: Number(total) || (Number(subtotal) + (Number(deliveryFee) || 0)),
       orderNotes: orderNotes?.trim(),
       status: OrderStatus.Received,
       whatsappDeepLinkUrl,
+    });
+
+    await logAudit(req, {
+      action: 'create',
+      resource: 'Order',
+      resourceId: order._id.toString(),
+      description: `New ${order.fulfillmentType} order #${order.orderNumber} placed for ${order.customer?.name || 'Guest'} (Total: ₦${order.total || order.subtotal}).`,
+      details: {
+        orderNumber: order.orderNumber,
+        fulfillmentType: order.fulfillmentType,
+        subtotal: order.subtotal,
+        total: order.total,
+      },
     });
 
     res.status(201).json({
@@ -131,6 +153,14 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
       return;
     }
 
+    await logAudit(req, {
+      action: 'status_change',
+      resource: 'Order',
+      resourceId: order._id.toString(),
+      description: `Updated status of order #${order.orderNumber} to "${status}".`,
+      details: { orderNumber: order.orderNumber, newStatus: status },
+    });
+
     res.json({ success: true, data: order, message: `Order status updated to ${status}.` });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -143,56 +173,58 @@ export const getOrderStats = async (_req: Request, res: Response): Promise<void>
     todayStart.setHours(0, 0, 0, 0);
 
     const [
-      totalOrdersCount,
-      todayOrdersCount,
-      revenueAggregation,
-      todayRevenueAggregation,
-      popularItemsAggregation,
-      statusBreakdown,
+      totalOrders,
+      todayOrders,
+      receivedOrders,
+      preparingOrders,
+      completedOrders,
+      revenueResult,
+      todayRevenueResult,
+      deliveryOrdersCount,
+      dineInOrdersCount,
+      pickupOrdersCount,
     ] = await Promise.all([
       Order.countDocuments(),
       Order.countDocuments({ createdAt: { $gte: todayStart } }),
+      Order.countDocuments({ status: OrderStatus.Received }),
+      Order.countDocuments({ status: OrderStatus.Preparing }),
+      Order.countDocuments({ status: OrderStatus.Completed }),
       Order.aggregate([
         { $match: { status: { $ne: OrderStatus.Cancelled } } },
-        { $group: { _id: null, totalRevenue: { $sum: '$subtotal' } } },
+        { $group: { _id: null, totalRevenue: { $sum: { $ifNull: ['$total', '$subtotal'] } } } },
       ]),
       Order.aggregate([
-        { $match: { createdAt: { $gte: todayStart }, status: { $ne: OrderStatus.Cancelled } } },
-        { $group: { _id: null, todayRevenue: { $sum: '$subtotal' } } },
-      ]),
-      Order.aggregate([
-        { $unwind: '$items' },
         {
-          $group: {
-            _id: '$items.name',
-            orderCount: { $sum: '$items.quantity' },
-            totalSales: { $sum: '$items.lineTotal' },
+          $match: {
+            createdAt: { $gte: todayStart },
+            status: { $ne: OrderStatus.Cancelled },
           },
         },
-        { $sort: { orderCount: -1 } },
-        { $limit: 5 },
+        { $group: { _id: null, todayRevenue: { $sum: { $ifNull: ['$total', '$subtotal'] } } } },
       ]),
-      Order.aggregate([
-        { $group: { _id: '$status', count: { $sum: 1 } } },
-      ]),
+      Order.countDocuments({ fulfillmentType: FulfillmentType.Delivery }),
+      Order.countDocuments({ fulfillmentType: FulfillmentType.DineIn }),
+      Order.countDocuments({ fulfillmentType: FulfillmentType.Pickup }),
     ]);
 
-    const totalRevenue = revenueAggregation[0]?.totalRevenue || 0;
-    const todayRevenue = todayRevenueAggregation[0]?.todayRevenue || 0;
+    const totalRevenue = revenueResult[0]?.totalRevenue || 0;
+    const todayRevenue = todayRevenueResult[0]?.todayRevenue || 0;
+    const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
     res.json({
       success: true,
       data: {
-        totalOrdersCount,
-        todayOrdersCount,
+        totalOrders,
+        todayOrders,
+        receivedOrders,
+        preparingOrders,
+        completedOrders,
         totalRevenue,
         todayRevenue,
-        popularItems: popularItemsAggregation.map((i) => ({
-          name: i._id,
-          orderCount: i.orderCount,
-          totalSales: i.totalSales,
-        })),
-        statusBreakdown: Object.fromEntries(statusBreakdown.map((s) => [s._id, s.count])),
+        avgOrderValue,
+        deliveryOrdersCount,
+        dineInOrdersCount,
+        pickupOrdersCount,
       },
     });
   } catch (error: any) {

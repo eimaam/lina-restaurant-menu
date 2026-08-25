@@ -19,9 +19,9 @@ export const BannerType = {
 export type BannerTypeType = (typeof BannerType)[keyof typeof BannerType];
 
 export const FulfillmentType = {
+  Delivery: 'delivery',
   DineIn: 'dine_in',
   Pickup: 'pickup',
-  Delivery: 'delivery',
 } as const;
 export type FulfillmentTypeType = (typeof FulfillmentType)[keyof typeof FulfillmentType];
 

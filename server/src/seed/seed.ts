@@ -4,6 +4,8 @@ import { User } from '../models/User.model';
 import { MenuCategory } from '../models/MenuCategory.model';
 import { MenuItem } from '../models/MenuItem.model';
 import { Banner } from '../models/Banner.model';
+import { DeliveryZone } from '../models/delivery-zone.model';
+import { RestaurantSettings } from '../models/settings.model';
 import { UserRole, OptionSelectionType, BannerType } from '../types';
 
 dotenv.config();
@@ -1102,6 +1104,94 @@ export const seedDatabase = async () => {
       },
     ]);
     console.log('✅ Banners seeded.');
+
+    // 5. Seed Delivery Zones (Abuja & Environs)
+    console.log('🛵 Seeding Delivery Zones...');
+    await DeliveryZone.deleteMany({});
+    await DeliveryZone.create([
+      {
+        name: 'Gwarinpa (1st - 7th Avenue)',
+        fee: 1000,
+        estimatedMinutes: 30,
+        description: 'Direct within Gwarinpa Estate',
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        name: 'Mabushi / Katampe',
+        fee: 1500,
+        estimatedMinutes: 40,
+        description: 'Mabushi, Katampe Main & Extension',
+        sortOrder: 2,
+        isActive: true,
+      },
+      {
+        name: 'Jabi / Utako / Life Camp',
+        fee: 1800,
+        estimatedMinutes: 40,
+        description: 'Jabi Lake, Utako district & Life Camp',
+        sortOrder: 3,
+        isActive: true,
+      },
+      {
+        name: 'Wuse 2 / Wuse Zone 1 - 7',
+        fee: 2000,
+        estimatedMinutes: 45,
+        description: 'Wuse 2, Aminu Kano, Adetokunbo Ademola',
+        sortOrder: 4,
+        isActive: true,
+      },
+      {
+        name: 'Maitama / Central Area',
+        fee: 2500,
+        estimatedMinutes: 50,
+        description: 'Maitama, CBD, Diplomatic Zone',
+        sortOrder: 5,
+        isActive: true,
+      },
+      {
+        name: 'Garki / Asokoro / Guzape',
+        fee: 3000,
+        estimatedMinutes: 55,
+        description: 'Garki 1 & 2, Asokoro, Guzape Hills',
+        sortOrder: 6,
+        isActive: true,
+      },
+      {
+        name: 'Kubwa / Dawaki / Dutse',
+        fee: 2500,
+        estimatedMinutes: 50,
+        description: 'Dawaki, Dutse, Kubwa Express',
+        sortOrder: 7,
+        isActive: true,
+      },
+      {
+        name: 'Airport Road / Lugbe',
+        fee: 3500,
+        estimatedMinutes: 60,
+        description: 'Lugbe, Pyakasa, Airport Road Estates',
+        sortOrder: 8,
+        isActive: true,
+      },
+    ]);
+    console.log('✅ Delivery Zones seeded.');
+
+    // 6. Seed Restaurant Settings & Social Media
+    console.log('⚙️ Seeding Restaurant Settings...');
+    await RestaurantSettings.deleteMany({});
+    await RestaurantSettings.create({
+      restaurantName: 'Lina Restaurant, Bar And Street Food',
+      whatsappNumber: '2349165196622',
+      contactPhone: '09165196622',
+      contactEmail: 'linarestaurantandbar@gmail.com',
+      address: '7/29 6th Avenue, Gwarinpa, Abuja',
+      tiktokUrl: 'https://www.tiktok.com/@lina_restaurant?_r=1&_t=ZS-999dMxzyRjV',
+      instagramUrl: 'https://www.instagram.com/lina_restaurant_and_streetfood?igsi=MTBndGluYnhyNDY5aA==',
+      facebookUrl: 'https://www.facebook.com/share/1EjgzWAGvT/?mibextid=wwXIfr',
+      openingHoursRestaurant: '12:00 PM – Late',
+      openingHoursStreetFood: '5:00 PM – Late',
+    });
+    console.log('✅ Restaurant Settings seeded.');
 
     console.log('🎉 Seeding complete! Database is fully initialized.');
     process.exit(0);

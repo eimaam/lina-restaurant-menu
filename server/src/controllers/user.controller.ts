@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { User } from '../models/User.model';
 import { UserRole } from '../types';
+import { logAudit } from '../services/audit.service';
 
 export const getUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -35,6 +36,14 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       isActive: true,
     });
 
+    await logAudit(req, {
+      action: 'create',
+      resource: 'User',
+      resourceId: user._id.toString(),
+      description: `Created new staff account for "${user.name}" (${user.email}) with role ${user.role}.`,
+      details: { name: user.name, email: user.email, role: user.role, phone: user.phone },
+    });
+
     const sanitized = await User.findById(user._id).select('-password');
     res.status(201).json({
       success: true,
@@ -65,6 +74,14 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     user.password = newPassword;
     await user.save();
 
+    await logAudit(req, {
+      action: 'reset_password',
+      resource: 'User',
+      resourceId: user._id.toString(),
+      description: `Reset password for user "${user.name}" (${user.email}).`,
+      details: { email: user.email, role: user.role },
+    });
+
     res.json({ success: true, message: 'User password reset successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -82,6 +99,14 @@ export const toggleUserStatus = async (req: Request, res: Response): Promise<voi
 
     user.isActive = !user.isActive;
     await user.save();
+
+    await logAudit(req, {
+      action: user.isActive ? 'activate' : 'deactivate',
+      resource: 'User',
+      resourceId: user._id.toString(),
+      description: `${user.isActive ? 'Activated' : 'Deactivated'} user account "${user.name}" (${user.email}).`,
+      details: { email: user.email, role: user.role, isActive: user.isActive },
+    });
 
     res.json({
       success: true,
@@ -102,9 +127,16 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Soft delete / Deactivate to protect audit trail and relational integrity
     user.isActive = false;
     await user.save();
+
+    await logAudit(req, {
+      action: 'delete',
+      resource: 'User',
+      resourceId: user._id.toString(),
+      description: `Deactivated and removed user "${user.name}" (${user.email}) from active directory.`,
+      details: { email: user.email, role: user.role },
+    });
 
     res.json({
       success: true,

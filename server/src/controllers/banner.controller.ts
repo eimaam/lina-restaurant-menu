@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Banner } from '../models/Banner.model';
 import { BannerType } from '../types';
+import { logAudit } from '../services/audit.service';
 
 export const getBanners = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -35,6 +36,14 @@ export const createBanner = async (req: Request, res: Response): Promise<void> =
       sortOrder: Number(sortOrder) || 0,
     });
 
+    await logAudit(req, {
+      action: 'create',
+      resource: 'Banner',
+      resourceId: banner._id.toString(),
+      description: `Created promotional banner "${banner.title}".`,
+      details: { title: banner.title, bannerType: banner.bannerType },
+    });
+
     res.status(201).json({ success: true, data: banner, message: 'Banner created successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -54,6 +63,14 @@ export const updateBanner = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
+    await logAudit(req, {
+      action: 'update',
+      resource: 'Banner',
+      resourceId: banner._id.toString(),
+      description: `Updated banner "${banner.title}".`,
+      details: { title: banner.title, isActive: banner.isActive },
+    });
+
     res.json({ success: true, data: banner, message: 'Banner updated successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -71,6 +88,14 @@ export const toggleBannerActive = async (req: Request, res: Response): Promise<v
 
     banner.isActive = !banner.isActive;
     await banner.save();
+
+    await logAudit(req, {
+      action: banner.isActive ? 'activate' : 'deactivate',
+      resource: 'Banner',
+      resourceId: banner._id.toString(),
+      description: `${banner.isActive ? 'Activated' : 'Deactivated'} banner "${banner.title}".`,
+      details: { title: banner.title, isActive: banner.isActive },
+    });
 
     res.json({
       success: true,
@@ -90,6 +115,15 @@ export const deleteBanner = async (req: Request, res: Response): Promise<void> =
       res.status(404).json({ success: false, message: 'Banner not found.' });
       return;
     }
+
+    await logAudit(req, {
+      action: 'delete',
+      resource: 'Banner',
+      resourceId: deleted._id.toString(),
+      description: `Deleted banner "${deleted.title}".`,
+      details: { title: deleted.title },
+    });
+
     res.json({ success: true, message: 'Banner deleted successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

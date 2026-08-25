@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { MenuCategory } from '../models/MenuCategory.model';
 import { MenuItem } from '../models/MenuItem.model';
+import { logAudit } from '../services/audit.service';
 
 // ── Categories ────────────────────────────────────────────────────────
 
@@ -61,6 +62,14 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
       isActive: isActive !== undefined ? isActive : true,
     });
 
+    await logAudit(req, {
+      action: 'create',
+      resource: 'MenuCategory',
+      resourceId: category._id.toString(),
+      description: `Created new menu category "${category.name}".`,
+      details: { name: category.name, slug: category.slug },
+    });
+
     res.status(201).json({ success: true, data: category, message: 'Category created successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -92,6 +101,15 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
     if (isActive !== undefined) category.isActive = isActive;
 
     await category.save();
+
+    await logAudit(req, {
+      action: 'update',
+      resource: 'MenuCategory',
+      resourceId: category._id.toString(),
+      description: `Updated menu category "${category.name}".`,
+      details: { name: category.name, slug: category.slug, isActive: category.isActive },
+    });
+
     res.json({ success: true, data: category, message: 'Category updated successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -115,6 +133,14 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ success: false, message: 'Category not found.' });
       return;
     }
+
+    await logAudit(req, {
+      action: 'delete',
+      resource: 'MenuCategory',
+      resourceId: deleted._id.toString(),
+      description: `Deleted menu category "${deleted.name}".`,
+      details: { name: deleted.name },
+    });
 
     res.json({ success: true, message: 'Category deleted successfully.' });
   } catch (error: any) {
@@ -227,6 +253,15 @@ export const createMenuItem = async (req: Request, res: Response): Promise<void>
     });
 
     const populated = await item.populate('categoryId', 'name slug icon');
+
+    await logAudit(req, {
+      action: 'create',
+      resource: 'MenuItem',
+      resourceId: item._id.toString(),
+      description: `Created new menu item "${item.name}" with base price ₦${item.basePrice}.`,
+      details: { name: item.name, basePrice: item.basePrice, categoryId },
+    });
+
     res.status(201).json({ success: true, data: populated, message: 'Menu item created successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -248,6 +283,14 @@ export const updateMenuItem = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+    await logAudit(req, {
+      action: 'update',
+      resource: 'MenuItem',
+      resourceId: item._id.toString(),
+      description: `Updated menu item details for "${item.name}".`,
+      details: { name: item.name, basePrice: item.basePrice, isAvailable: item.isAvailable },
+    });
+
     res.json({ success: true, data: item, message: 'Menu item updated successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -265,6 +308,14 @@ export const toggleItemAvailability = async (req: Request, res: Response): Promi
 
     item.isAvailable = !item.isAvailable;
     await item.save();
+
+    await logAudit(req, {
+      action: 'toggle_availability',
+      resource: 'MenuItem',
+      resourceId: item._id.toString(),
+      description: `Toggled availability for "${item.name}" to ${item.isAvailable ? 'In Stock' : 'Out of Stock'}.`,
+      details: { name: item.name, isAvailable: item.isAvailable },
+    });
 
     res.json({
       success: true,
@@ -284,6 +335,15 @@ export const deleteMenuItem = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ success: false, message: 'Menu item not found.' });
       return;
     }
+
+    await logAudit(req, {
+      action: 'delete',
+      resource: 'MenuItem',
+      resourceId: deleted._id.toString(),
+      description: `Deleted menu item "${deleted.name}".`,
+      details: { name: deleted.name },
+    });
+
     res.json({ success: true, message: 'Menu item deleted successfully.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

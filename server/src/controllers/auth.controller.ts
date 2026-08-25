@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.model';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../config/jwt';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { logAudit } from '../services/audit.service';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -37,6 +38,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN as any }
     );
+
+    // Mock user onto req to capture in audit log
+    (req as any).user = user;
+    await logAudit(req, {
+      action: 'login',
+      resource: 'Auth',
+      resourceId: user._id.toString(),
+      description: `User "${user.name}" (${user.email}) logged into management portal.`,
+      details: { role: user.role },
+    });
 
     res.json({
       success: true,

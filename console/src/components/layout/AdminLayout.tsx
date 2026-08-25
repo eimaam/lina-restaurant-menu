@@ -17,6 +17,9 @@ import {
   Sparkles,
   ChevronRight,
   Circle,
+  Truck,
+  Settings as SettingsIcon,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Logo, Badge, cn } from '@lina/ui';
@@ -36,13 +39,16 @@ export const AdminLayout: React.FC = () => {
     { label: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
     { label: 'Menu & Stock', path: '/menu', icon: <UtensilsCrossed size={18} /> },
     { label: 'Orders Log', path: '/orders', icon: <ClipboardList size={18} /> },
-    { label: 'Banners & Promos', path: '/banners', icon: <ImageIcon size={18} /> },
   ];
 
   const adminNavItems = isAdmin
     ? [
       { label: 'Staff Management', path: '/staff', icon: <Users size={18} /> },
+      { label: 'Banners & Promos', path: '/banners', icon: <ImageIcon size={18} /> },
+      { label: 'Delivery Zones', path: '/delivery-zones', icon: <Truck size={18} /> },
       { label: 'Printable Menu PDF', path: '/menu-pdf', icon: <FileText size={18} /> },
+      { label: 'Brand & Hotline Settings', path: '/settings', icon: <SettingsIcon size={18} /> },
+      { label: 'System Audit Logs', path: '/audit-logs', icon: <History size={18} /> },
     ]
     : [];
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, Clock, ExternalLink } from 'lucide-react';
-import { Logo, WhatsAppIcon, InstagramIcon, GoogleMapsIcon } from '@lina/ui';
+import { Logo, WhatsAppIcon, InstagramIcon, TikTokIcon, FacebookIcon, GoogleMapsIcon } from '@lina/ui';
 
 export const PublicFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -118,7 +118,34 @@ export const PublicFooter: React.FC = () => {
         <div className="pt-6 border-t border-[#2E2722] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8A7E72]">
           <p>© {currentYear} Lina Restaurant, Bar And Street Food. All rights reserved.</p>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-5">
+            <a
+              href="https://www.tiktok.com/@lina_restaurant?_r=1&_t=ZS-999dMxzyRjV"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <TikTokIcon size={14} className="text-[#EE1D52]" />
+              <span>TikTok</span>
+            </a>
+            <a
+              href="https://www.instagram.com/lina_restaurant_and_streetfood?igsi=MTBndGluYnhyNDY5aA=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <InstagramIcon size={14} className="text-[#E4405F]" />
+              <span>Instagram</span>
+            </a>
+            <a
+              href="https://www.facebook.com/share/1EjgzWAGvT/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <FacebookIcon size={14} className="text-[#1877F2]" />
+              <span>Facebook</span>
+            </a>
             <a
               href="https://wa.me/2349165196622"
               target="_blank"
@@ -127,15 +154,6 @@ export const PublicFooter: React.FC = () => {
             >
               <WhatsAppIcon size={14} className="text-[#25D366]" />
               <span>WhatsApp</span>
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors flex items-center gap-1.5"
-            >
-              <InstagramIcon size={14} className="text-[#E4405F]" />
-              <span>Instagram</span>
             </a>
             <a
               href="https://www.google.com/maps/search/?api=1&query=7%2F29+6th+Avenue+Gwarinpa+Abuja"

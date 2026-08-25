@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Trash2,
@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
+  MapPin,
+  Clock,
 } from 'lucide-react';
 import { PublicHeader } from '../components/layout/PublicHeader';
 import { PublicFooter } from '../components/layout/PublicFooter';
@@ -19,17 +21,26 @@ import { Button, Input, WhatsAppIcon, formatNaira } from '@lina/ui';
 import { useCart } from '../contexts/CartContext';
 import { publicApi } from '../lib/api';
 import { generateWhatsAppDeepLink } from '../lib/whatsapp';
-import type { FulfillmentTypeType, CartItem, SelectedOptionItem } from '@lina/types';
+import type {
+  FulfillmentTypeType,
+  CartItem,
+  DeliveryZoneResponse,
+  RestaurantSettings,
+} from '@lina/types';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { items, updateQuantity, removeItem, clearCart, subtotal } = useCart();
 
-  // Fulfillment State
-  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentTypeType>('dine_in');
-  const [tableNumber, setTableNumber] = useState<string>(
-    () => sessionStorage.getItem('lina_table_number') || ''
+  const tableParam = searchParams.get('table') || sessionStorage.getItem('lina_table_number') || '';
+
+  // Default fulfillment: 'dine_in' if table is scanned, otherwise 'delivery'
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentTypeType>(
+    () => (tableParam ? 'dine_in' : 'delivery')
   );
+
+  const [tableNumber, setTableNumber] = useState<string>(tableParam);
   const [customerName, setCustomerName] = useState<string>(
     () => localStorage.getItem('lina_customer_name') || ''
   );
@@ -39,12 +50,43 @@ export const CheckoutPage: React.FC = () => {
   const [deliveryAddress, setDeliveryAddress] = useState<string>('');
   const [orderNotes, setOrderNotes] = useState<string>('');
 
+  // Delivery Zones & Settings State
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZoneResponse[]>([]);
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('');
+  const [settings, setSettings] = useState<RestaurantSettings | null>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [placedOrderInfo, setPlacedOrderInfo] = useState<{
     orderNumber: string;
     whatsappUrl: string;
   } | null>(null);
+
+  // Load delivery zones & restaurant settings
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const [zonesData, settingsData] = await Promise.all([
+          publicApi.getDeliveryZones(),
+          publicApi.getSettings(),
+        ]);
+        if (zonesData && zonesData.length > 0) {
+          setDeliveryZones(zonesData);
+          setSelectedZoneId(zonesData[0]._id);
+        }
+        if (settingsData) {
+          setSettings(settingsData);
+        }
+      } catch (err) {
+        console.error('Failed to load checkout options', err);
+      }
+    };
+    init();
+  }, []);
+
+  const selectedZone = deliveryZones.find((z) => z._id === selectedZoneId);
+  const deliveryFee = fulfillmentType === 'delivery' ? (selectedZone?.fee || 0) : 0;
+  const grandTotal = subtotal + deliveryFee;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +114,7 @@ export const CheckoutPage: React.FC = () => {
     }
 
     if (fulfillmentType === 'delivery' && !deliveryAddress.trim()) {
-      setErrorMessage('Please enter your full delivery address in Abuja.');
+      setErrorMessage('Please enter your full delivery street address in Abuja.');
       return;
     }
 
@@ -86,17 +128,20 @@ export const CheckoutPage: React.FC = () => {
 
       const orderNumber = `LRB-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // Generate WhatsApp link
+      // Generate WhatsApp link with dynamic settings hotline
       const whatsappUrl = generateWhatsAppDeepLink({
         orderNumber,
         customerName: customerName.trim() || undefined,
         customerPhone: customerPhone.trim() || undefined,
         fulfillmentType,
         tableNumber: tableNumber.trim() || undefined,
+        deliveryZoneName: fulfillmentType === 'delivery' ? selectedZone?.name : undefined,
+        deliveryFee: fulfillmentType === 'delivery' ? deliveryFee : undefined,
         deliveryAddress: deliveryAddress.trim() || undefined,
         items,
         subtotal,
         orderNotes: orderNotes.trim() || undefined,
+        whatsappNumber: settings?.whatsappNumber,
       });
 
       // 1. Asynchronously log order in DB
@@ -109,6 +154,9 @@ export const CheckoutPage: React.FC = () => {
           },
           fulfillmentType,
           tableNumber: tableNumber.trim() || undefined,
+          deliveryZoneId: fulfillmentType === 'delivery' ? selectedZone?._id : undefined,
+          deliveryZoneName: fulfillmentType === 'delivery' ? selectedZone?.name : undefined,
+          deliveryFee: fulfillmentType === 'delivery' ? deliveryFee : 0,
           deliveryAddress: deliveryAddress.trim() || undefined,
           items: items.map((i: CartItem) => ({
             menuItemId: i.menuItem._id,
@@ -121,6 +169,7 @@ export const CheckoutPage: React.FC = () => {
             lineTotal: i.unitPrice * i.quantity,
           })),
           subtotal,
+          total: grandTotal,
           orderNotes: orderNotes.trim() || undefined,
           whatsappDeepLinkUrl: whatsappUrl,
         });
@@ -159,7 +208,7 @@ export const CheckoutPage: React.FC = () => {
               Order Dispatched!
             </h1>
             <p className="text-sm text-on-surface-variant leading-relaxed max-w-sm mx-auto">
-              Your order payload has been formatted and routed to Lina Restaurant's official WhatsApp line.
+              Your order payload has been formatted and routed to Lina Restaurant's official WhatsApp hotline.
             </p>
           </div>
 
@@ -202,7 +251,7 @@ export const CheckoutPage: React.FC = () => {
           <div>
             <h1 className="font-serif font-bold text-2xl text-on-surface">Your Cart is Empty</h1>
             <p className="text-xs text-on-surface-variant mt-1.5 max-w-xs mx-auto">
-              Explore our digital catalog to add delicious soups, grills, shawarma, tea, and drinks.
+              Explore our digital catalog to add delicious native soups, charcoal grills, shawarma, Arabian tea, and cocktails.
             </p>
           </div>
           <Link to="/menu">
@@ -220,7 +269,7 @@ export const CheckoutPage: React.FC = () => {
     <div className="min-h-screen bg-surface flex flex-col justify-between">
       <PublicHeader />
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Back Link */}
         <div className="flex items-center justify-between pb-4 border-b border-outline-variant">
           <Link
@@ -244,7 +293,7 @@ export const CheckoutPage: React.FC = () => {
               {items.map((item: CartItem) => (
                 <div
                   key={item.id}
-                  className="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 flex items-start justify-between gap-4 shadow-card"
+                  className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-4 flex items-start justify-between gap-4 shadow-card"
                 >
                   <div className="flex-1 space-y-1">
                     <h3 className="font-serif font-bold text-base text-on-surface">
@@ -252,30 +301,35 @@ export const CheckoutPage: React.FC = () => {
                     </h3>
 
                     {item.selectedSize && (
-                      <div className="text-xs font-semibold text-primary">
-                        Size: {item.selectedSize.name}
+                      <div className="text-xs text-primary font-bold">
+                        Portion: {item.selectedSize.name}
                       </div>
                     )}
 
                     {item.selectedOptions && item.selectedOptions.length > 0 && (
-                      <div className="text-[11px] text-on-surface-variant">
-                        Options: {item.selectedOptions.map((o: SelectedOptionItem) => o.optionName).join(', ')}
+                      <div className="text-[11px] text-on-surface-variant space-y-0.5">
+                        {item.selectedOptions.map((opt, idx) => (
+                          <div key={idx}>
+                            + {opt.optionName}{' '}
+                            {opt.extraPrice > 0 && `(${formatNaira(opt.extraPrice)})`}
+                          </div>
+                        ))}
                       </div>
                     )}
 
                     {item.specialInstructions && (
-                      <div className="text-[11px] text-on-surface-variant/80 italic">
-                        Note: "{item.specialInstructions}"
+                      <div className="text-[11px] text-amber-800 italic bg-amber-50 rounded-md p-1 border border-amber-200 inline-block">
+                        Note: {item.specialInstructions}
                       </div>
                     )}
 
-                    <div className="font-serif font-black text-sm text-secondary pt-1">
+                    <div className="text-xs font-serif font-black text-secondary pt-1">
                       {formatNaira(item.unitPrice * item.quantity)}
                     </div>
                   </div>
 
                   {/* Quantity Actions */}
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
@@ -316,8 +370,8 @@ export const CheckoutPage: React.FC = () => {
                 rows={2}
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
-                placeholder="Any general requests or notes for the cashier / kitchen..."
-                className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
+                placeholder="Any special requests or instructions for the kitchen / dispatch..."
+                className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -331,11 +385,25 @@ export const CheckoutPage: React.FC = () => {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
+                  onClick={() => setFulfillmentType('delivery')}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    fulfillmentType === 'delivery'
+                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                  }`}
+                >
+                  <Truck size={18} className="mx-auto mb-1 text-primary" />
+                  <div className="text-xs">Delivery</div>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setFulfillmentType('dine_in')}
-                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'dine_in'
-                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                    }`}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    fulfillmentType === 'dine_in'
+                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                  }`}
                 >
                   <Utensils size={18} className="mx-auto mb-1 text-primary" />
                   <div className="text-xs">Dine-In</div>
@@ -344,38 +412,53 @@ export const CheckoutPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFulfillmentType('pickup')}
-                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'pickup'
-                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                    }`}
+                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+                    fulfillmentType === 'pickup'
+                      ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
+                      : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
+                  }`}
                 >
                   <ShoppingBag size={18} className="mx-auto mb-1 text-primary" />
                   <div className="text-xs">Takeaway</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFulfillmentType('delivery')}
-                  className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${fulfillmentType === 'delivery'
-                    ? 'border-primary bg-primary-container/40 text-on-primary-container font-bold ring-2 ring-primary/20'
-                    : 'border-outline-variant hover:border-primary/40 bg-surface-container-low text-on-surface-variant'
-                    }`}
-                >
-                  <Truck size={18} className="mx-auto mb-1 text-primary" />
-                  <div className="text-xs">Delivery</div>
                 </button>
               </div>
 
               {/* 2. Dynamic Input Fields */}
               <div className="space-y-4">
+                {/* Dine-In Table Number */}
                 {fulfillmentType === 'dine_in' && (
                   <Input
-                    label="Table / Seat / Bar Number *"
+                    label="Table / Seat / VIP Lounge Number *"
                     placeholder="e.g. Table 4, VIP Lounge 2"
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
                     required
                   />
+                )}
+
+                {/* Delivery Zone Selector */}
+                {fulfillmentType === 'delivery' && (
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                      Delivery Zone / Area *
+                    </label>
+                    <select
+                      value={selectedZoneId}
+                      onChange={(e) => setSelectedZoneId(e.target.value)}
+                      className="w-full bg-surface-container-low text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary font-medium text-on-surface"
+                    >
+                      {deliveryZones.map((zone) => (
+                        <option key={zone._id} value={zone._id}>
+                          {zone.name} — {formatNaira(zone.fee)} (~{zone.estimatedMinutes || 45} mins)
+                        </option>
+                      ))}
+                    </select>
+                    {selectedZone?.description && (
+                      <p className="text-[11px] text-on-surface-variant italic">
+                        {selectedZone.description}
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 <Input
@@ -395,36 +478,43 @@ export const CheckoutPage: React.FC = () => {
                   required={fulfillmentType !== 'dine_in'}
                 />
 
+                {/* Street Delivery Address */}
                 {fulfillmentType === 'delivery' && (
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                      Delivery Street Address in Abuja *
+                      Delivery Street Address *
                     </label>
                     <textarea
                       rows={2}
                       value={deliveryAddress}
                       onChange={(e) => setDeliveryAddress(e.target.value)}
                       placeholder="e.g. House 14, 4th Avenue, Gwarinpa Estate, Abuja"
-                      className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-lg p-3 border border-outline-variant focus:outline-none focus:border-primary"
+                      className="w-full bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/50 text-xs rounded-xl p-3 border border-outline-variant focus:outline-none focus:border-primary"
                       required
                     />
                   </div>
                 )}
               </div>
 
-              {/* 3. Subtotal Summary */}
+              {/* 3. Subtotal & Grand Total Summary */}
               <div className="pt-4 border-t border-surface-container space-y-2">
-                <div className="flex items-center justify-between text-sm text-on-surface-variant">
-                  <span>Subtotal ({items.length} items)</span>
+                <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                  <span>Food & Drinks Subtotal</span>
                   <span className="font-semibold text-on-surface">{formatNaira(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-on-surface-variant">
-                  <span>Delivery / Service</span>
-                  <span className="italic">Confirmed on WhatsApp</span>
-                </div>
+
+                {fulfillmentType === 'delivery' && (
+                  <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                    <span>
+                      Delivery Fee ({selectedZone?.name || 'Abuja Zone'})
+                    </span>
+                    <span className="font-bold text-primary">{formatNaira(deliveryFee)}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between text-base font-black text-secondary pt-2 border-t border-surface-container">
-                  <span>Total Amount</span>
-                  <span className="font-serif text-xl">{formatNaira(subtotal)}</span>
+                  <span>Total Amount Due</span>
+                  <span className="font-serif text-xl">{formatNaira(grandTotal)}</span>
                 </div>
               </div>
 
@@ -449,7 +539,7 @@ export const CheckoutPage: React.FC = () => {
               </Button>
 
               <p className="text-[11px] text-center text-on-surface-variant leading-relaxed">
-                Your order payload will open directly in WhatsApp to confirm payment details and delivery fee with our staff.
+                Your order payload will open directly in WhatsApp with {settings?.restaurantName || 'Lina Restaurant'} to confirm payment and dispatch.
               </p>
             </div>
           </div>

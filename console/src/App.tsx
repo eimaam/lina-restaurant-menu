@@ -15,6 +15,9 @@ import { BannerManagementPage } from './pages/BannerManagementPage';
 import { StaffManagementPage } from './pages/StaffManagementPage';
 import { QRCodePage } from './pages/QRCodePage';
 import { MenuPdfPage } from './pages/MenuPdfPage';
+import { DeliveryZonesPage } from './pages/DeliveryZonesPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { AuditLogsPage } from './pages/AuditLogsPage';
 
 function ScrollToTopOnNavigate() {
   const { pathname } = useLocation();
@@ -43,15 +46,18 @@ export default function App() {
             <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="/menu" element={<MenuManagementPage />} />
             <Route path="/orders" element={<OrdersHistoryPage />} />
-            <Route path="/banners" element={<BannerManagementPage />} />
 
-            {/* Admin & Developer Routes */}
+            {/* Admin & Developer Protected Routes */}
             <Route element={<RoleGuard roles={[UserRole.Admin, UserRole.Developer]} />}>
+              <Route path="/banners" element={<BannerManagementPage />} />
               <Route path="/staff" element={<StaffManagementPage />} />
+              <Route path="/delivery-zones" element={<DeliveryZonesPage />} />
               <Route path="/menu-pdf" element={<MenuPdfPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/audit-logs" element={<AuditLogsPage />} />
             </Route>
 
-            {/* Developer ONLY Route */}
+            {/* Developer ONLY Exclusive Route */}
             <Route element={<RoleGuard roles={[UserRole.Developer]} />}>
               <Route path="/qr" element={<QRCodePage />} />
             </Route>

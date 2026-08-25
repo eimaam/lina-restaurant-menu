@@ -5,6 +5,9 @@ import type {
   BannerResponse,
   OrderResponse,
   UserResponse,
+  DeliveryZoneResponse,
+  RestaurantSettings,
+  AuditLogResponse,
 } from '@lina/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -25,7 +28,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Public helpers (for menu / categories inspection)
+// Public helpers
 export const publicApi = {
   getCategories: async (): Promise<MenuCategoryResponse[]> => {
     const res = await api.get('/menu/categories');
@@ -46,6 +49,16 @@ export const publicApi = {
     const res = await api.get('/banners');
     return res.data.data;
   },
+
+  getDeliveryZones: async (): Promise<DeliveryZoneResponse[]> => {
+    const res = await api.get('/delivery-zones');
+    return res.data.data;
+  },
+
+  getSettings: async (): Promise<RestaurantSettings> => {
+    const res = await api.get('/settings');
+    return res.data.data;
+  },
 };
 
 // Admin & Staff Operations
@@ -60,7 +73,7 @@ export const adminApi = {
   deleteMenuItem: async (id: string) => (await api.delete(`/menu/items/${id}`)).data,
   toggleItemAvailability: async (id: string) => (await api.patch(`/menu/items/${id}/toggle-availability`)).data,
 
-  // Banners
+  // Banners (Admin & Developer Only)
   getAllBanners: async (): Promise<BannerResponse[]> => {
     const res = await api.get('/banners?includeInactive=true');
     return res.data.data;
@@ -79,11 +92,30 @@ export const adminApi = {
     (await api.patch(`/orders/${id}/status`, { status })).data,
   getOrderStats: async () => (await api.get('/orders/stats')).data.data,
 
-  // Staff User Management (Super Admin)
+  // Delivery Zones
+  getAllDeliveryZones: async (): Promise<DeliveryZoneResponse[]> => {
+    const res = await api.get('/delivery-zones?all=true');
+    return res.data.data;
+  },
+  createDeliveryZone: async (data: any) => (await api.post('/delivery-zones', data)).data,
+  updateDeliveryZone: async (id: string, data: any) => (await api.put(`/delivery-zones/${id}`, data)).data,
+  deleteDeliveryZone: async (id: string) => (await api.delete(`/delivery-zones/${id}`)).data,
+
+  // Settings & Contacts
+  getSettings: async (): Promise<RestaurantSettings> => (await api.get('/settings')).data.data,
+  updateSettings: async (data: Partial<RestaurantSettings>) => (await api.put('/settings', data)).data,
+
+  // Staff User Management (Super Admin & Developer)
   getUsers: async (): Promise<UserResponse[]> => (await api.get('/users')).data.data,
   createUser: async (data: any) => (await api.post('/users', data)).data,
   resetPassword: async (id: string, newPassword: string) =>
     (await api.patch(`/users/${id}/reset-password`, { newPassword })).data,
   toggleUserStatus: async (id: string) => (await api.patch(`/users/${id}/toggle-status`)).data,
   deleteUser: async (id: string) => (await api.delete(`/users/${id}`)).data,
+
+  // Audit Logs (Admin & Developer)
+  getAuditLogs: async (params?: any): Promise<{ logs: AuditLogResponse[]; total: number; page: number; totalPages: number }> => {
+    const res = await api.get('/audit-logs', { params });
+    return res.data.data;
+  },
 };

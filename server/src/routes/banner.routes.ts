@@ -14,10 +14,10 @@ const router = Router();
 // Public
 router.get('/', getBanners);
 
-// Admin Only
-router.post('/', authenticate, requireRole([UserRole.Admin]), createBanner);
-router.put('/:id', authenticate, requireRole([UserRole.Admin]), updateBanner);
-router.patch('/:id/toggle-active', authenticate, requireRole([UserRole.Admin]), toggleBannerActive);
-router.delete('/:id', authenticate, requireRole([UserRole.Admin]), deleteBanner);
+// Admin & Developer Only (Staff is strictly restricted)
+router.post('/', authenticate, requireRole([UserRole.Admin, UserRole.Developer]), createBanner);
+router.put('/:id', authenticate, requireRole([UserRole.Admin, UserRole.Developer]), updateBanner);
+router.patch('/:id/toggle-active', authenticate, requireRole([UserRole.Admin, UserRole.Developer]), toggleBannerActive);
+router.delete('/:id', authenticate, requireRole([UserRole.Admin, UserRole.Developer]), deleteBanner);
 
 export default router;

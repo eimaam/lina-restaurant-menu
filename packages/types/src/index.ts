@@ -19,9 +19,9 @@ export const BannerType = {
 export type BannerTypeType = (typeof BannerType)[keyof typeof BannerType];
 
 export const FulfillmentType = {
+  Delivery: 'delivery',
   DineIn: 'dine_in',
   Pickup: 'pickup',
-  Delivery: 'delivery',
 } as const;
 export type FulfillmentTypeType = (typeof FulfillmentType)[keyof typeof FulfillmentType];
 
@@ -106,6 +106,33 @@ export interface BannerResponse {
   updatedAt: string;
 }
 
+export interface DeliveryZoneResponse {
+  _id: string;
+  name: string;
+  fee: number;
+  estimatedMinutes?: number;
+  description?: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RestaurantSettings {
+  _id?: string;
+  restaurantName: string;
+  whatsappNumber: string;
+  contactPhone: string;
+  contactEmail: string;
+  address: string;
+  tiktokUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  openingHoursRestaurant?: string;
+  openingHoursStreetFood?: string;
+  updatedAt?: string;
+}
+
 export interface OrderItemLine {
   menuItemId: string;
   name: string;
@@ -127,9 +154,13 @@ export interface OrderResponse {
   };
   fulfillmentType: FulfillmentTypeType;
   tableNumber?: string;
+  deliveryZoneId?: string;
+  deliveryZoneName?: string;
+  deliveryFee?: number;
   deliveryAddress?: string;
   items: OrderItemLine[];
   subtotal: number;
+  total?: number;
   orderNotes?: string;
   status: OrderStatusType;
   whatsappDeepLinkUrl?: string;
@@ -157,4 +188,19 @@ export interface CartItem {
   quantity: number;
   unitPrice: number;
   specialInstructions?: string;
+}
+
+export interface AuditLogResponse {
+  _id: string;
+  userId?: string;
+  userName: string;
+  userEmail: string;
+  userRole: UserRoleType | 'system';
+  action: string;
+  resource: string;
+  resourceId?: string;
+  description: string;
+  details?: Record<string, any>;
+  ipAddress?: string;
+  createdAt: string;
 }

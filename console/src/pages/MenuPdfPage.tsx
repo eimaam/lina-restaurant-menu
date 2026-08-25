@@ -329,7 +329,7 @@ export const MenuPdfPage: React.FC = () => {
                       A la Carte Menu
                     </h2>
                     <p className="text-xs text-stone-500 font-sans pt-1">
-                      Fresh native soups, charcoal grills, shawarmas, and premium cocktails
+                      Fresh native soups, charcoal grills, shawarmas and premium cocktails
                     </p>
                   </div>
 
