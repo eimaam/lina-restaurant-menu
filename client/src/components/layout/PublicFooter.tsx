@@ -166,9 +166,9 @@ export const PublicFooter: React.FC = () => {
             </a>
           </div>
 
-          <p className="text-[11px] text-[#A89F91]">
+          {/* <p className="text-[11px] text-[#A89F91]">
             Designed by <span className="font-semibold text-primary">Tech Flair</span>
-          </p>
+          </p> */}
         </div>
       </div>
     </footer>

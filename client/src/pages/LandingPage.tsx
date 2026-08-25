@@ -382,14 +382,14 @@ export const LandingPage: React.FC = () => {
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <WhatsAppIcon size={16} className="text-[#25D366]" />
-                    <span>09165196622 (WhatsApp)</span>
+                    <span>09165196622</span>
                   </a>
                   <a
                     href="tel:09165196622"
                     className="flex items-center gap-2 text-sm text-on-surface font-semibold hover:text-primary transition-colors"
                   >
                     <PhoneCall size={16} className="text-primary" />
-                    <span>09165196622 (Direct Line)</span>
+                    <span>09165196622</span>
                   </a>
 
                   {/* Social Handles */}
