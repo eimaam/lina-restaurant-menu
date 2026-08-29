@@ -51,7 +51,7 @@ export const MenuPdfPage: React.FC = () => {
       const filename = `Lina-Restaurant-Menu-A4-${selectedStyle === 'midnight' ? 'MidnightGold' : 'ClassicCream'}.pdf`;
 
       const opt = {
-        margin: [8, 8, 8, 8] as [number, number, number, number],
+        margin: [0, 0, 0, 0] as [number, number, number, number],
         filename,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: {
@@ -59,7 +59,8 @@ export const MenuPdfPage: React.FC = () => {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          windowWidth: 800,
+          scrollX: 0,
+          windowWidth: 794,
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
         pagebreak: { mode: ['avoid-all' as const, 'css' as const, 'legacy' as const] },
@@ -157,16 +158,16 @@ export const MenuPdfPage: React.FC = () => {
         <div className="w-full flex justify-center overflow-x-auto pb-8 print:p-0">
           <div
             ref={pdfContainerRef}
-            className="w-full max-w-[210mm] min-w-[210mm] bg-white print:max-w-none print:w-full"
-            style={{ minHeight: '297mm' }}
+            className="w-[210mm] max-w-[210mm] min-w-[210mm] bg-white print:max-w-none print:w-full box-border shadow-2xl"
+            style={{ minHeight: '297mm', width: '210mm' }}
           >
             {/* ==========================================================================
                STYLE 1: MIDNIGHT OBSIDIAN & GOLD
                ========================================================================== */}
             {selectedStyle === 'midnight' && (
-              <div className="bg-[#161311] text-[#FAF7F2] shadow-2xl p-8 sm:p-12 space-y-12 font-serif min-h-[297mm]">
+              <div className="bg-[#161311] text-[#FAF7F2] p-8 space-y-10 font-serif min-h-[297mm] box-border">
                 {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] html2pdf__page-break">
+                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] html2pdf__page-break box-border">
                   {/* Corner Luxury Frame Accents */}
                   <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#C5943A]" />
                   <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#C5943A]" />
@@ -183,10 +184,10 @@ export const MenuPdfPage: React.FC = () => {
                     <div className="inline-block px-4 py-1 rounded-full bg-[#2E2722] text-[#C5943A] text-xs font-sans font-bold uppercase tracking-[0.25em] border border-[#C5943A]/30">
                       Official Dining & Bar Menu
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-[#FAF7F2] leading-tight">
+                    <h1 className="text-4xl font-black tracking-tight text-[#FAF7F2] leading-tight">
                       Lina Restaurant, Bar And Street Food
                     </h1>
-                    <p className="text-xl sm:text-2xl italic text-[#C5943A] font-medium">
+                    <p className="text-xl italic text-[#C5943A] font-medium">
                       Where Good Food Meets Great Vibes.
                     </p>
                     <div className="w-20 h-0.5 bg-[#C5943A]/50 mx-auto my-3" />
@@ -214,7 +215,7 @@ export const MenuPdfPage: React.FC = () => {
                 </div>
 
                 {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
-                <div className="space-y-10 pt-6">
+                <div className="space-y-8 pt-4">
                   <div className="text-center border-b border-[#3D332A] pb-3">
                     <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
                       Dining & Lounge Selection
@@ -227,36 +228,39 @@ export const MenuPdfPage: React.FC = () => {
                   {itemsByCategory.map(({ category, items }) => (
                     <div
                       key={category._id}
-                      className="space-y-4 break-inside-avoid html2pdf__page-break-avoid"
+                      className="space-y-3 break-inside-avoid html2pdf__page-break-avoid"
                     >
                       <div className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2">
                         <span className="text-lg">{category.icon || '🍽️'}</span>
-                        <h3 className="font-bold text-lg text-[#FAF7F2] uppercase tracking-wider">
+                        <h3 className="font-bold text-base text-[#FAF7F2] uppercase tracking-wider">
                           {category.name}
                         </h3>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-3.5">
                         {items.map((item) => (
                           <div
                             key={item._id}
                             className="space-y-1 border-b border-[#2E2722] pb-2.5 break-inside-avoid"
                           >
                             <div className="flex items-baseline justify-between gap-2">
-                              <h4 className="font-bold text-sm text-[#FAF7F2]">{item.name}</h4>
-                              <span className="font-bold text-sm text-[#C5943A] shrink-0 font-sans">
+                              <h4 className="font-bold text-xs text-[#FAF7F2] truncate pr-1">{item.name}</h4>
+                              <span className="font-bold text-xs text-[#C5943A] shrink-0 font-sans whitespace-nowrap">
                                 {formatNaira(item.basePrice)}
                               </span>
                             </div>
                             {item.description && (
-                              <p className="text-[11px] text-[#DDD7CB] font-sans leading-relaxed line-clamp-2">
+                              <p className="text-[10px] text-[#DDD7CB] font-sans leading-snug pt-0.5">
                                 {item.description}
                               </p>
                             )}
                             {item.hasSizes && item.sizes && item.sizes.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans text-[10px] text-[#A89F91]">
+                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans">
                                 {item.sizes.map((s, idx) => (
-                                  <span key={idx} className="bg-[#2E2722] px-1.5 py-0.5 rounded">
+                                  <span
+                                    key={idx}
+                                    className="inline-flex items-center justify-center bg-[#2E2722] text-[#A89F91] px-2 py-0.5 rounded text-[9px] font-sans leading-normal whitespace-nowrap border border-[#C5943A]/20"
+                                  >
                                     {s.name}: {formatNaira(s.price)}
                                   </span>
                                 ))}
@@ -270,7 +274,7 @@ export const MenuPdfPage: React.FC = () => {
                 </div>
 
                 {/* ── FOOTER ── */}
-                <div className="border-t border-[#3D332A] pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-[#A89F91] font-sans">
+                <div className="border-t border-[#3D332A] pt-4 flex items-center justify-between text-[10px] text-[#A89F91] font-sans">
                   <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
                   <div>{defaultDomain}</div>
                 </div>
@@ -281,9 +285,9 @@ export const MenuPdfPage: React.FC = () => {
                STYLE 2: CLASSIC CREAM ELEGANCE
                ========================================================================== */}
             {selectedStyle === 'classic' && (
-              <div className="bg-[#FAF7F2] text-[#161311] shadow-2xl p-8 sm:p-12 space-y-12 font-serif min-h-[297mm]">
+              <div className="bg-[#FAF7F2] text-[#161311] p-8 space-y-10 font-serif min-h-[297mm] box-border">
                 {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 sm:p-10 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] html2pdf__page-break">
+                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] html2pdf__page-break box-border">
                   <div className="pt-6">
                     <Logo size="2xl" className="justify-center" />
                   </div>
@@ -292,10 +296,10 @@ export const MenuPdfPage: React.FC = () => {
                     <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
                       Fine Dining & Lounge
                     </span>
-                    <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-amber-950 leading-tight">
+                    <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight">
                       Lina Restaurant, Bar And Street Food
                     </h1>
-                    <p className="text-xl sm:text-2xl italic text-amber-800 font-medium">
+                    <p className="text-xl italic text-amber-800 font-medium">
                       Where Good Food Meets Great Vibes.
                     </p>
                     <div className="w-20 h-0.5 bg-amber-900/30 mx-auto my-3" />
@@ -323,7 +327,7 @@ export const MenuPdfPage: React.FC = () => {
                 </div>
 
                 {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
-                <div className="space-y-10 pt-6">
+                <div className="space-y-8 pt-4">
                   <div className="text-center border-b-2 border-amber-900/20 pb-3">
                     <h2 className="text-2xl font-black text-amber-950 uppercase tracking-widest">
                       A la Carte Menu
@@ -336,37 +340,37 @@ export const MenuPdfPage: React.FC = () => {
                   {itemsByCategory.map(({ category, items }) => (
                     <div
                       key={category._id}
-                      className="space-y-4 break-inside-avoid html2pdf__page-break-avoid"
+                      className="space-y-3 break-inside-avoid html2pdf__page-break-avoid"
                     >
                       <div className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2">
-                        <h3 className="font-bold text-lg text-amber-950 uppercase tracking-wider">
+                        <h3 className="font-bold text-base text-amber-950 uppercase tracking-wider">
                           {category.name}
                         </h3>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-3.5">
                         {items.map((item) => (
                           <div
                             key={item._id}
                             className="space-y-1 border-b border-stone-200 pb-2.5 break-inside-avoid"
                           >
                             <div className="flex items-baseline justify-between gap-2">
-                              <h4 className="font-bold text-sm text-stone-900">{item.name}</h4>
-                              <span className="font-bold text-sm text-amber-900 shrink-0 font-sans">
+                              <h4 className="font-bold text-xs text-stone-900 truncate pr-1">{item.name}</h4>
+                              <span className="font-bold text-xs text-amber-900 shrink-0 font-sans whitespace-nowrap">
                                 {formatNaira(item.basePrice)}
                               </span>
                             </div>
                             {item.description && (
-                              <p className="text-[11px] text-stone-600 font-sans leading-relaxed line-clamp-2">
+                              <p className="text-[10px] text-stone-600 font-sans leading-snug pt-0.5">
                                 {item.description}
                               </p>
                             )}
                             {item.hasSizes && item.sizes && item.sizes.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans text-[10px] text-stone-500">
+                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans">
                                 {item.sizes.map((s, idx) => (
                                   <span
                                     key={idx}
-                                    className="bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200"
+                                    className="inline-flex items-center justify-center bg-amber-50 text-stone-600 px-2 py-0.5 rounded text-[9px] font-sans leading-normal whitespace-nowrap border border-amber-200"
                                   >
                                     {s.name}: {formatNaira(s.price)}
                                   </span>
@@ -381,7 +385,7 @@ export const MenuPdfPage: React.FC = () => {
                 </div>
 
                 {/* ── FOOTER ── */}
-                <div className="border-t border-amber-900/20 pt-4 flex flex-col sm:flex-row items-center justify-between text-[10px] text-stone-500 font-sans">
+                <div className="border-t border-amber-900/20 pt-4 flex items-center justify-between text-[10px] text-stone-500 font-sans">
                   <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
                   <div>{defaultDomain}</div>
                 </div>
@@ -393,3 +397,4 @@ export const MenuPdfPage: React.FC = () => {
     </div>
   );
 };
+
