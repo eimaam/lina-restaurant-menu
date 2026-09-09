@@ -3,10 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import { Logo, WhatsAppIcon, cn } from '@lina/ui';
 import { useCart } from '../../contexts/CartContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export const PublicHeader: React.FC = () => {
   const location = useLocation();
   const { totalItemsCount, subtotal } = useCart();
+  const { settings } = useSettings();
 
   const isMenu = location.pathname === '/menu';
 
@@ -42,7 +44,7 @@ export const PublicHeader: React.FC = () => {
             </span>
           </Link>
           <a
-            href="https://wa.me/2349165196622?text=Hello%20Lina%20Restaurant%2C%20I%20would%20like%20to%20reserve%20a%20table%20%2F%20VIP%20lounge."
+            href={`https://wa.me/${settings.whatsappNumber || '2349165196622'}?text=Hello%20Lina%20Restaurant%2C%20I%20would%20like%20to%20reserve%20a%20table%20%2F%20VIP%20room.`}
             target="_blank"
             rel="noreferrer"
             className="hover:text-primary transition-colors flex items-center gap-1.5 text-on-surface font-semibold"

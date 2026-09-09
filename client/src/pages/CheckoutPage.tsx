@@ -19,6 +19,7 @@ import { PublicHeader } from '../components/layout/PublicHeader';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import { Button, Input, WhatsAppIcon, formatNaira } from '@lina/ui';
 import { useCart } from '../contexts/CartContext';
+import { useSettings } from '../contexts/SettingsContext';
 import { publicApi } from '../lib/api';
 import { generateWhatsAppDeepLink } from '../lib/whatsapp';
 import type {
@@ -32,6 +33,7 @@ export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { items, updateQuantity, removeItem, clearCart, subtotal } = useCart();
+  const { settings } = useSettings();
 
   const tableParam = searchParams.get('table') || sessionStorage.getItem('lina_table_number') || '';
 
@@ -50,10 +52,9 @@ export const CheckoutPage: React.FC = () => {
   const [deliveryAddress, setDeliveryAddress] = useState<string>('');
   const [orderNotes, setOrderNotes] = useState<string>('');
 
-  // Delivery Zones & Settings State
+  // Delivery Zones State
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZoneResponse[]>([]);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('');
-  const [settings, setSettings] = useState<RestaurantSettings | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -62,23 +63,17 @@ export const CheckoutPage: React.FC = () => {
     whatsappUrl: string;
   } | null>(null);
 
-  // Load delivery zones & restaurant settings
+  // Load delivery zones
   useEffect(() => {
     const init = async () => {
       try {
-        const [zonesData, settingsData] = await Promise.all([
-          publicApi.getDeliveryZones(),
-          publicApi.getSettings(),
-        ]);
+        const zonesData = await publicApi.getDeliveryZones();
         if (zonesData && zonesData.length > 0) {
           setDeliveryZones(zonesData);
           setSelectedZoneId(zonesData[0]._id);
         }
-        if (settingsData) {
-          setSettings(settingsData);
-        }
       } catch (err) {
-        console.error('Failed to load checkout options', err);
+        console.error('Failed to load delivery zones', err);
       }
     };
     init();
@@ -428,8 +423,8 @@ export const CheckoutPage: React.FC = () => {
                 {/* Dine-In Table Number */}
                 {fulfillmentType === 'dine_in' && (
                   <Input
-                    label="Table / Seat / VIP Lounge Number *"
-                    placeholder="e.g. Table 4, VIP Lounge 2"
+                    label="Table / Seat / VIP Room Number *"
+                    placeholder="e.g. Table 4, VIP Room 2"
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
                     required

@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, Clock, ExternalLink } from 'lucide-react';
 import { Logo, WhatsAppIcon, InstagramIcon, TikTokIcon, FacebookIcon, GoogleMapsIcon } from '@lina/ui';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export const PublicFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const { settings } = useSettings();
 
   return (
     <footer className="bg-[#161311] text-[#DDD7CB] border-t border-[#2E2722] pt-12 pb-8">
@@ -14,7 +16,7 @@ export const PublicFooter: React.FC = () => {
           <div className="space-y-3">
             <Logo size="md" className="brightness-125" />
             <p className="text-xs text-[#A89F91] leading-relaxed">
-              Lina Restaurant, Bar And Street Food — Where Good Food Meets Great Vibes. Authentic Nigerian kitchen, charcoal grills, cocktail lounge, shisha, and SAF Arabian tea in Gwarinpa, Abuja.
+              {settings.restaurantName || 'Lina Restaurant, Bar And Street Food'} — Where Good Food Meets Great Vibes. Authentic Nigerian kitchen, charcoal grills, cocktail, shisha, and SAF Arabian tea in Gwarinpa, Abuja.
             </p>
           </div>
 
@@ -25,14 +27,14 @@ export const PublicFooter: React.FC = () => {
             </h4>
             <div className="space-y-2 text-xs text-[#DDD7CB]">
               <a
-                href="https://www.google.com/maps/search/?api=1&query=7%2F29+6th+Avenue+Gwarinpa+Abuja"
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || '7/29 6th Avenue, Gwarinpa, Abuja')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-2 text-[#DDD7CB] hover:text-primary transition-colors group"
               >
                 <GoogleMapsIcon size={15} className="text-primary shrink-0 mt-0.5" />
                 <span className="leading-snug">
-                  7/29 6th Avenue, Gwarinpa, Abuja
+                  {settings.address || '7/29 6th Avenue, Gwarinpa, Abuja'}
                   <span className="inline-block ml-1 opacity-70 group-hover:opacity-100 text-[10px]">↗</span>
                 </span>
               </a>
@@ -41,10 +43,12 @@ export const PublicFooter: React.FC = () => {
                 <Clock size={15} className="text-primary shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <p>
-                    <span className="text-[#A89F91]">Restaurant & Lounge:</span> 12:00 PM – Late
+                    <span className="text-[#A89F91]">Restaurant:</span>{' '}
+                    {settings.openingHoursRestaurant || '12:00 PM – Late'}
                   </p>
                   <p>
-                    <span className="text-[#A89F91]">Street Food Section:</span> 5:00 PM – Late
+                    <span className="text-[#A89F91]">Street Food Section:</span>{' '}
+                    {settings.openingHoursStreetFood || '5:00 PM – Late'}
                   </p>
                 </div>
               </div>
@@ -59,31 +63,31 @@ export const PublicFooter: React.FC = () => {
             <ul className="space-y-2 text-xs">
               <li>
                 <a
-                  href="https://wa.me/2349165196622?text=Hello%20Lina%20Restaurant%2C%20I%20would%20like%20to%20place%20an%20order%20or%20inquire."
+                  href={`https://wa.me/${settings.whatsappNumber || '2349165196622'}?text=Hello%20Lina%20Restaurant%2C%20I%20would%20like%20to%20place%20an%20order%20or%20inquire.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-[#DDD7CB] hover:text-primary transition-colors"
                 >
                   <WhatsAppIcon size={14} className="text-[#25D366] shrink-0" />
-                  <span>09165196622</span>
+                  <span>{settings.contactPhone || '09165196622'}</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:09165196622"
+                  href={`tel:${settings.contactPhone || '09165196622'}`}
                   className="flex items-center gap-2 text-[#DDD7CB] hover:text-primary transition-colors"
                 >
                   <Phone size={14} className="text-primary shrink-0" />
-                  <span>09165196622</span>
+                  <span>{settings.contactPhone || '09165196622'}</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:linarestaurantandbar@gmail.com"
+                  href={`mailto:${settings.contactEmail || 'linarestaurantandbar@gmail.com'}`}
                   className="flex items-center gap-2 text-[#DDD7CB] hover:text-primary transition-colors"
                 >
                   <Mail size={14} className="text-primary shrink-0" />
-                  <span>linarestaurantandbar@gmail.com</span>
+                  <span>{settings.contactEmail || 'linarestaurantandbar@gmail.com'}</span>
                 </a>
               </li>
             </ul>
@@ -116,11 +120,11 @@ export const PublicFooter: React.FC = () => {
 
         {/* Minimal Bottom Bar */}
         <div className="pt-6 border-t border-[#2E2722] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8A7E72]">
-          <p>© {currentYear} Lina Restaurant, Bar And Street Food. All rights reserved.</p>
+          <p>© {currentYear} {settings.restaurantName || 'Lina Restaurant, Bar And Street Food'}. All rights reserved.</p>
 
           <div className="flex flex-wrap items-center gap-5">
             <a
-              href="https://www.tiktok.com/@lina_restaurant?_r=1&_t=ZS-999dMxzyRjV"
+              href={settings.tiktokUrl || 'https://www.tiktok.com/@lina_restaurant?_r=1&_t=ZS-999dMxzyRjV'}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5"
@@ -129,7 +133,7 @@ export const PublicFooter: React.FC = () => {
               <span>TikTok</span>
             </a>
             <a
-              href="https://www.instagram.com/lina_restaurant_and_streetfood?igsi=MTBndGluYnhyNDY5aA=="
+              href={settings.instagramUrl || 'https://www.instagram.com/lina_restaurant_and_streetfood?igsi=MTBndGluYnhyNDY5aA=='}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5"
@@ -138,7 +142,7 @@ export const PublicFooter: React.FC = () => {
               <span>Instagram</span>
             </a>
             <a
-              href="https://www.facebook.com/share/1EjgzWAGvT/?mibextid=wwXIfr"
+              href={settings.facebookUrl || 'https://www.facebook.com/share/1EjgzWAGvT/?mibextid=wwXIfr'}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5"
@@ -147,7 +151,7 @@ export const PublicFooter: React.FC = () => {
               <span>Facebook</span>
             </a>
             <a
-              href="https://wa.me/2349165196622"
+              href={`https://wa.me/${settings.whatsappNumber || '2349165196622'}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5"
@@ -156,7 +160,7 @@ export const PublicFooter: React.FC = () => {
               <span>WhatsApp</span>
             </a>
             <a
-              href="https://www.google.com/maps/search/?api=1&query=7%2F29+6th+Avenue+Gwarinpa+Abuja"
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || '7/29 6th Avenue, Gwarinpa, Abuja')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors flex items-center gap-1.5"

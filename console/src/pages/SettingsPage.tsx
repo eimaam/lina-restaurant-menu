@@ -35,7 +35,17 @@ export const SettingsPage: React.FC = () => {
     try {
       const data = await adminApi.getSettings();
       if (data) {
-        setForm(data);
+        setForm((prev) => ({
+          ...prev,
+          ...data,
+          openingHoursRestaurant: data.openingHoursRestaurant ?? prev.openingHoursRestaurant,
+          openingHoursStreetFood: data.openingHoursStreetFood ?? prev.openingHoursStreetFood,
+          restaurantName: data.restaurantName ?? prev.restaurantName,
+          whatsappNumber: data.whatsappNumber ?? prev.whatsappNumber,
+          contactPhone: data.contactPhone ?? prev.contactPhone,
+          contactEmail: data.contactEmail ?? prev.contactEmail,
+          address: data.address ?? prev.address,
+        }));
       }
     } catch (err) {
       console.error('Failed to load settings', err);
@@ -53,7 +63,14 @@ export const SettingsPage: React.FC = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await adminApi.updateSettings(form);
+      const res = await adminApi.updateSettings(form);
+      const savedData = res?.data || form;
+      try {
+        localStorage.setItem(
+          'lina_restaurant_settings_cache',
+          JSON.stringify({ data: savedData, timestamp: Date.now() })
+        );
+      } catch {}
       toast.success('Restaurant contact and social settings updated successfully!');
       loadSettings();
     } catch (err: any) {
@@ -170,16 +187,16 @@ export const SettingsPage: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="Opening Hours: Restaurant & Lounge"
+                  label="Opening Hours: Restaurant & Bar"
                   placeholder="12:00 PM – Late"
-                  value={form.openingHoursRestaurant}
+                  value={form.openingHoursRestaurant || ''}
                   onChange={(e) => setForm({ ...form, openingHoursRestaurant: e.target.value })}
                 />
 
                 <Input
                   label="Opening Hours: Street Food Section"
                   placeholder="5:00 PM – Late"
-                  value={form.openingHoursStreetFood}
+                  value={form.openingHoursStreetFood || ''}
                   onChange={(e) => setForm({ ...form, openingHoursStreetFood: e.target.value })}
                 />
               </div>

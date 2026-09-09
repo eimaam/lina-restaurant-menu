@@ -218,7 +218,7 @@ export const MenuPdfPage: React.FC = () => {
                 <div className="space-y-8 pt-4">
                   <div className="text-center border-b border-[#3D332A] pb-3">
                     <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
-                      Dining & Lounge Selection
+                      Dining & Room Selection
                     </h2>
                     <p className="text-xs text-[#A89F91] font-sans pt-1">
                       All delicacies prepared fresh to order in our executive kitchen
@@ -294,7 +294,7 @@ export const MenuPdfPage: React.FC = () => {
 
                   <div className="space-y-4 my-auto max-w-lg">
                     <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
-                      Fine Dining & Lounge
+                      Fine Dining & VIP Rooms
                     </span>
                     <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight">
                       Lina Restaurant, Bar And Street Food

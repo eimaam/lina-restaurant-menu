@@ -720,7 +720,7 @@ export const seedDatabase = async () => {
             ],
           },
         ],
-        tags: ['shisha', 'hookah', 'lounge'],
+        tags: ['shisha', 'hookah', 'vip room'],
         sortOrder: 1,
       },
       {
@@ -1083,7 +1083,7 @@ export const seedDatabase = async () => {
     await Banner.create([
       {
         title: 'Welcome to Lina Restaurant, Bar And Street Food',
-        subtitle: 'Experience exquisite African gastronomy, street food delicacies, Arabian teas, and luxury lounge ambiance in Gwarinpa.',
+        subtitle: 'Experience exquisite African gastronomy, street food delicacies, Arabian teas, and luxury VIP room ambiance in Gwarinpa.',
         bannerType: BannerType.Announcement,
         isActive: true,
         sortOrder: 1,
@@ -1096,7 +1096,7 @@ export const seedDatabase = async () => {
         sortOrder: 2,
       },
       {
-        title: 'Lounge Night & Shisha Sessions',
+        title: 'VIP Night & Shisha Sessions',
         subtitle: 'Relax with handcrafted cocktails and complete shisha pots every evening.',
         bannerType: BannerType.SpecialDiscount,
         isActive: true,

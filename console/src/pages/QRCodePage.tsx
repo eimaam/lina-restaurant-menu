@@ -169,7 +169,7 @@ export const QRCodePage: React.FC = () => {
           </div>
 
           <Input
-            label="Table / VIP Lounge / Bar Seat Number"
+            label="Table / VIP Room / Bar Seat Number"
             placeholder="e.g. 4, VIP 1, Rooftop 2 (optional)"
             value={tableNumber}
             onChange={(e) => setTableNumber(e.target.value)}
