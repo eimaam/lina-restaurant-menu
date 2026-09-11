@@ -2,11 +2,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
 
+# Ensure devDependencies (including TypeScript compiler) are installed
+ENV NODE_ENV=development
+
 # Copy package descriptors and TypeScript config
 COPY package*.json tsconfig.json ./
 
-# Install dependencies (including TypeScript compiler)
-RUN npm install
+# Install all dependencies needed to compile TypeScript
+RUN npm install --include=dev
 
 # Copy source code and compile TypeScript to /usr/src/app/dist
 COPY src ./src
