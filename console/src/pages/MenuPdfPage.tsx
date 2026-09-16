@@ -63,7 +63,7 @@ export const MenuPdfPage: React.FC = () => {
           windowWidth: 794,
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        pagebreak: { mode: ['avoid-all' as const, 'css' as const, 'legacy' as const] },
+        pagebreak: { mode: ['css' as const, 'legacy' as const] },
       };
 
       await html2pdf().set(opt).from(element).save();
@@ -184,7 +184,7 @@ export const MenuPdfPage: React.FC = () => {
                     <div className="inline-block px-4 py-1 rounded-full bg-[#2E2722] text-[#C5943A] text-xs font-sans font-bold uppercase tracking-[0.25em] border border-[#C5943A]/30">
                       Official Dining & Bar Menu
                     </div>
-                    <h1 className="text-4xl font-black tracking-tight text-[#FAF7F2] leading-tight">
+                    <h1 className="text-4xl font-black tracking-tight text-[#FAF7F2] leading-tight pb-1">
                       Lina Restaurant, Bar And Street Food
                     </h1>
                     <p className="text-xl italic text-[#C5943A] font-medium">
@@ -228,46 +228,64 @@ export const MenuPdfPage: React.FC = () => {
                   {itemsByCategory.map(({ category, items }) => (
                     <div
                       key={category._id}
-                      className="space-y-3 break-inside-avoid html2pdf__page-break-avoid"
+                      className="space-y-3"
                     >
-                      <div className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2">
+                      <div
+                        className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-after-avoid"
+                        style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                      >
                         <span className="text-lg">{category.icon || '🍽️'}</span>
-                        <h3 className="font-bold text-base text-[#FAF7F2] uppercase tracking-wider">
+                        <h3 className="font-serif font-bold text-base text-[#FAF7F2] uppercase tracking-wider pb-0.5">
                           {category.name}
                         </h3>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-3.5">
-                        {items.map((item) => (
-                          <div
-                            key={item._id}
-                            className="space-y-1 border-b border-[#2E2722] pb-2.5 break-inside-avoid"
-                          >
-                            <div className="flex items-baseline justify-between gap-2">
-                              <h4 className="font-bold text-xs text-[#FAF7F2] truncate pr-1">{item.name}</h4>
-                              <span className="font-bold text-xs text-[#C5943A] shrink-0 font-sans whitespace-nowrap">
-                                {formatNaira(item.basePrice)}
-                              </span>
-                            </div>
-                            {item.description && (
-                              <p className="text-[10px] text-[#DDD7CB] font-sans leading-snug pt-0.5">
-                                {item.description}
-                              </p>
-                            )}
-                            {item.hasSizes && item.sizes && item.sizes.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans">
-                                {item.sizes.map((s, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="inline-flex items-center justify-center bg-[#2E2722] text-[#A89F91] px-2 py-0.5 rounded text-[9px] font-sans leading-normal whitespace-nowrap border border-[#C5943A]/20"
-                                  >
-                                    {s.name}: {formatNaira(s.price)}
-                                  </span>
-                                ))}
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                        {items.map((item) => {
+                          const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                          let priceLabel = formatNaira(item.basePrice);
+                          if (hasSizes && item.sizes) {
+                            const prices = item.sizes.map((s) => s.price);
+                            const min = Math.min(...prices);
+                            const max = Math.max(...prices);
+                            priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                          }
+
+                          return (
+                            <div
+                              key={item._id}
+                              className="space-y-1 border-b border-[#2E2722]/80 pb-3 break-inside-avoid html2pdf__page-break-avoid"
+                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                            >
+                              <div className="flex items-start justify-between gap-2.5">
+                                <h4 className="font-serif font-bold text-xs text-[#FAF7F2] leading-snug pb-0.5 break-words">
+                                  {item.name}
+                                </h4>
+                                <span className="font-sans font-bold text-xs text-[#C5943A] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                  {priceLabel}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              {item.description && (
+                                <p className="text-[10px] text-[#DDD7CB]/90 font-sans leading-relaxed pb-0.5">
+                                  {item.description}
+                                </p>
+                              )}
+                              {hasSizes && item.sizes && (
+                                <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#A89F91]">
+                                  {item.sizes.map((s, idx) => (
+                                    <span key={idx} className="inline-flex items-baseline">
+                                      <span className="text-[#DDD7CB] font-medium">{s.name}</span>
+                                      <span className="mx-1 text-[#C5943A]/70 font-semibold">{formatNaira(s.price)}</span>
+                                      {idx < item.sizes!.length - 1 && (
+                                        <span className="ml-2 text-[#594D44] select-none">•</span>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -296,7 +314,7 @@ export const MenuPdfPage: React.FC = () => {
                     <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
                       Fine Dining & VIP Rooms
                     </span>
-                    <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight">
+                    <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight pb-1">
                       Lina Restaurant, Bar And Street Food
                     </h1>
                     <p className="text-xl italic text-amber-800 font-medium">
@@ -340,45 +358,63 @@ export const MenuPdfPage: React.FC = () => {
                   {itemsByCategory.map(({ category, items }) => (
                     <div
                       key={category._id}
-                      className="space-y-3 break-inside-avoid html2pdf__page-break-avoid"
+                      className="space-y-3"
                     >
-                      <div className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2">
-                        <h3 className="font-bold text-base text-amber-950 uppercase tracking-wider">
+                      <div
+                        className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-after-avoid"
+                        style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                      >
+                        <h3 className="font-serif font-bold text-base text-amber-950 uppercase tracking-wider pb-0.5">
                           {category.name}
                         </h3>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-3.5">
-                        {items.map((item) => (
-                          <div
-                            key={item._id}
-                            className="space-y-1 border-b border-stone-200 pb-2.5 break-inside-avoid"
-                          >
-                            <div className="flex items-baseline justify-between gap-2">
-                              <h4 className="font-bold text-xs text-stone-900 truncate pr-1">{item.name}</h4>
-                              <span className="font-bold text-xs text-amber-900 shrink-0 font-sans whitespace-nowrap">
-                                {formatNaira(item.basePrice)}
-                              </span>
-                            </div>
-                            {item.description && (
-                              <p className="text-[10px] text-stone-600 font-sans leading-snug pt-0.5">
-                                {item.description}
-                              </p>
-                            )}
-                            {item.hasSizes && item.sizes && item.sizes.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 pt-1 font-sans">
-                                {item.sizes.map((s, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="inline-flex items-center justify-center bg-amber-50 text-stone-600 px-2 py-0.5 rounded text-[9px] font-sans leading-normal whitespace-nowrap border border-amber-200"
-                                  >
-                                    {s.name}: {formatNaira(s.price)}
-                                  </span>
-                                ))}
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                        {items.map((item) => {
+                          const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                          let priceLabel = formatNaira(item.basePrice);
+                          if (hasSizes && item.sizes) {
+                            const prices = item.sizes.map((s) => s.price);
+                            const min = Math.min(...prices);
+                            const max = Math.max(...prices);
+                            priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                          }
+
+                          return (
+                            <div
+                              key={item._id}
+                              className="space-y-1 border-b border-stone-200 pb-3 break-inside-avoid html2pdf__page-break-avoid"
+                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                            >
+                              <div className="flex items-start justify-between gap-2.5">
+                                <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
+                                  {item.name}
+                                </h4>
+                                <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                  {priceLabel}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                              {item.description && (
+                                <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
+                                  {item.description}
+                                </p>
+                              )}
+                              {hasSizes && item.sizes && (
+                                <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
+                                  {item.sizes.map((s, idx) => (
+                                    <span key={idx} className="inline-flex items-baseline">
+                                      <span className="text-stone-800 font-medium">{s.name}</span>
+                                      <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
+                                      {idx < item.sizes!.length - 1 && (
+                                        <span className="ml-2 text-stone-300 select-none">•</span>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
