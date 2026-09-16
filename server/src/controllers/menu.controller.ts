@@ -15,17 +15,26 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
 
     const categories = await MenuCategory.find(filter).sort({ sortOrder: 1, name: 1 });
 
-    // Aggregate counts of items in each category
+    // Aggregate counts of items in each category (both available and total)
     const counts = await MenuItem.aggregate([
-      { $match: { isAvailable: true } },
-      { $group: { _id: '$categoryId', count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: '$categoryId',
+          itemCount: { $sum: { $cond: [{ $eq: ['$isAvailable', true] }, 1, 0] } },
+          totalItemCount: { $sum: 1 },
+        },
+      },
     ]);
-    const countsMap = new Map(counts.map((c) => [c._id.toString(), c.count]));
+    const countsMap = new Map(counts.map((c) => [c._id?.toString(), { itemCount: c.itemCount, totalItemCount: c.totalItemCount }]));
 
-    const categoriesWithCount = categories.map((cat) => ({
-      ...cat.toObject(),
-      itemCount: countsMap.get(cat._id.toString()) || 0,
-    }));
+    const categoriesWithCount = categories.map((cat) => {
+      const countsForCat = countsMap.get(cat._id.toString());
+      return {
+        ...cat.toObject(),
+        itemCount: countsForCat?.itemCount || 0,
+        totalItemCount: countsForCat?.totalItemCount || 0,
+      };
+    });
 
     res.json({ success: true, data: categoriesWithCount });
   } catch (error: any) {

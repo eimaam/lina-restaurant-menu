@@ -64,8 +64,16 @@ export const publicApi = {
 // Admin & Staff Operations
 export const adminApi = {
   // Menu & Categories
+  getAllCategories: async (params?: { includeInactive?: boolean }): Promise<MenuCategoryResponse[]> => {
+    const res = await api.get('/menu/categories', {
+      params: { includeInactive: params?.includeInactive ?? true },
+    });
+    return res.data.data;
+  },
   createCategory: async (data: any) => (await api.post('/menu/categories', data)).data,
   updateCategory: async (id: string, data: any) => (await api.put(`/menu/categories/${id}`, data)).data,
+  toggleCategoryActive: async (id: string, isActive: boolean) =>
+    (await api.put(`/menu/categories/${id}`, { isActive })).data,
   deleteCategory: async (id: string) => (await api.delete(`/menu/categories/${id}`)).data,
 
   createMenuItem: async (data: any) => (await api.post('/menu/items', data)).data,

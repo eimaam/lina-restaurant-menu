@@ -70,6 +70,7 @@ export interface MenuCategoryResponse {
   sortOrder: number;
   isActive: boolean;
   itemCount?: number;
+  totalItemCount?: number;
   createdAt: string;
   updatedAt: string;
 }

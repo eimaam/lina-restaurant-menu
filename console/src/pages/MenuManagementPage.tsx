@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -35,6 +36,7 @@ import {
 
 export const MenuManagementPage: React.FC = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const [categories, setCategories] = useState<MenuCategoryResponse[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
@@ -203,12 +205,12 @@ export const MenuManagementPage: React.FC = () => {
         <div className="flex items-center gap-2.5">
           {isAdmin && (
             <Button
-              onClick={() => setCategoryModalOpen(true)}
+              onClick={() => navigate('/categories')}
               variant="outline"
               size="sm"
               icon={<FolderPlus size={14} />}
             >
-              Add Category
+              Manage Categories
             </Button>
           )}
 

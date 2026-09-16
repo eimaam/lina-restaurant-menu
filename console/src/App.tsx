@@ -18,6 +18,7 @@ import { MenuPdfPage } from './pages/MenuPdfPage';
 import { DeliveryZonesPage } from './pages/DeliveryZonesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AuditLogsPage } from './pages/AuditLogsPage';
+import { CategoryManagementPage } from './pages/CategoryManagementPage';
 
 function ScrollToTopOnNavigate() {
   const { pathname } = useLocation();
@@ -49,6 +50,7 @@ export default function App() {
 
             {/* Admin & Developer Protected Routes */}
             <Route element={<RoleGuard roles={[UserRole.Admin, UserRole.Developer]} />}>
+              <Route path="/categories" element={<CategoryManagementPage />} />
               <Route path="/banners" element={<BannerManagementPage />} />
               <Route path="/staff" element={<StaffManagementPage />} />
               <Route path="/delivery-zones" element={<DeliveryZonesPage />} />

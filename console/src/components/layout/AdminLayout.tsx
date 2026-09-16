@@ -20,6 +20,7 @@ import {
   Truck,
   Settings as SettingsIcon,
   History,
+  FolderTree,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Logo, Badge, cn } from '@lina/ui';
@@ -43,6 +44,7 @@ export const AdminLayout: React.FC = () => {
 
   const adminNavItems = isAdmin
     ? [
+      { label: 'Category Management', path: '/categories', icon: <FolderTree size={18} /> },
       { label: 'Staff Management', path: '/staff', icon: <Users size={18} /> },
       { label: 'Banners & Promos', path: '/banners', icon: <ImageIcon size={18} /> },
       { label: 'Delivery Zones', path: '/delivery-zones', icon: <Truck size={18} /> },
