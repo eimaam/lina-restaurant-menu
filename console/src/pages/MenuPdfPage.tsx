@@ -5,6 +5,15 @@ import { publicApi } from '../lib/api';
 import { formatNaira, Button, Logo, toast } from '@lina/ui';
 import type { MenuCategoryResponse, MenuItemResponse } from '@lina/types';
 
+// Helper function to chunk items into pairs of 2 so each row can avoid page break splits
+const chunkInPairs = <T,>(arr: T[]): T[][] => {
+  const pairs: T[][] = [];
+  for (let i = 0; i < arr.length; i += 2) {
+    pairs.push(arr.slice(i, i + 2));
+  }
+  return pairs;
+};
+
 export const MenuPdfPage: React.FC = () => {
   const [categories, setCategories] = useState<MenuCategoryResponse[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
@@ -118,7 +127,10 @@ export const MenuPdfPage: React.FC = () => {
           windowWidth: 794,
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        pagebreak: { mode: ['css' as const, 'legacy' as const] },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'] as const,
+          avoid: ['.menu-item-row', '.menu-category-header', '.menu-footer'],
+        },
       };
 
       await html2pdf().set(opt).from(element).save();
@@ -228,12 +240,12 @@ export const MenuPdfPage: React.FC = () => {
                ========================================================================== */}
             {selectedStyle === 'midnight' && (
               <>
-                {/* ── PAGE 1: COVER PAGE (Exact A4 297mm Height) ── */}
+                {/* ── PAGE 1: COVER PAGE (A4 Portrait) ── */}
                 <div
-                  className="w-[210mm] h-[297mm] min-h-[297mm] max-h-[297mm] p-8 box-border flex flex-col justify-between items-stretch html2pdf__page-break bg-[#161311]"
+                  className="w-[210mm] min-h-[275mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#161311]"
                   style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
                 >
-                  <div className="h-full w-full flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] box-border">
+                  <div className="h-full min-h-[255mm] w-full flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] box-border">
                     {/* Corner Luxury Frame Accents */}
                     <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#C5943A]" />
                     <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#C5943A]" />
@@ -302,8 +314,8 @@ export const MenuPdfPage: React.FC = () => {
                         className="space-y-3"
                       >
                         <div
-                          className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-after-avoid"
-                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                          className="menu-category-header flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-inside-avoid html2pdf__page-break-avoid"
+                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid', pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
                           <span className="text-lg">{category.icon || '🍽️'}</span>
                           <h3 className="font-serif font-bold text-base text-[#FAF7F2] uppercase tracking-wider pb-0.5">
@@ -311,59 +323,66 @@ export const MenuPdfPage: React.FC = () => {
                           </h3>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                          {items.map((item) => {
-                            const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
-                            let priceLabel = formatNaira(item.basePrice);
-                            if (hasSizes && item.sizes) {
-                              const prices = item.sizes.map((s) => s.price);
-                              const min = Math.min(...prices);
-                              const max = Math.max(...prices);
-                              priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
-                            }
+                        <div className="space-y-4">
+                          {chunkInPairs(items).map((pair, pairIdx) => (
+                            <div
+                              key={pairIdx}
+                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid html2pdf__page-break-avoid"
+                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                            >
+                              {pair.map((item) => {
+                                const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                                let priceLabel = formatNaira(item.basePrice);
+                                if (hasSizes && item.sizes) {
+                                  const prices = item.sizes.map((s) => s.price);
+                                  const min = Math.min(...prices);
+                                  const max = Math.max(...prices);
+                                  priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                                }
 
-                            return (
-                              <div
-                                key={item._id}
-                                className="space-y-1 border-b border-[#2E2722]/80 pb-3 break-inside-avoid html2pdf__page-break-avoid"
-                                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-                              >
-                                <div className="flex items-start justify-between gap-2.5">
-                                  <h4 className="font-serif font-bold text-xs text-[#FAF7F2] leading-snug pb-0.5 break-words">
-                                    {item.name}
-                                  </h4>
-                                  <span className="font-sans font-bold text-xs text-[#C5943A] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
-                                    {priceLabel}
-                                  </span>
-                                </div>
-                                {item.description && (
-                                  <p className="text-[10px] text-[#DDD7CB]/90 font-sans leading-relaxed pb-0.5">
-                                    {item.description}
-                                  </p>
-                                )}
-                                {hasSizes && item.sizes && (
-                                  <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#A89F91]">
-                                    {item.sizes.map((s, idx) => (
-                                      <span key={idx} className="inline-flex items-baseline">
-                                        <span className="text-[#DDD7CB] font-medium">{s.name}</span>
-                                        <span className="mx-1 text-[#C5943A]/70 font-semibold">{formatNaira(s.price)}</span>
-                                        {idx < item.sizes!.length - 1 && (
-                                          <span className="ml-2 text-[#594D44] select-none">•</span>
-                                        )}
+                                return (
+                                  <div
+                                    key={item._id}
+                                    className="space-y-1 border-b border-[#2E2722]/80 pb-3"
+                                  >
+                                    <div className="flex items-start justify-between gap-2.5">
+                                      <h4 className="font-serif font-bold text-xs text-[#FAF7F2] leading-snug pb-0.5 break-words">
+                                        {item.name}
+                                      </h4>
+                                      <span className="font-sans font-bold text-xs text-[#C5943A] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                        {priceLabel}
                                       </span>
-                                    ))}
+                                    </div>
+                                    {item.description && (
+                                      <p className="text-[10px] text-[#DDD7CB]/90 font-sans leading-relaxed pb-0.5">
+                                        {item.description}
+                                      </p>
+                                    )}
+                                    {hasSizes && item.sizes && (
+                                      <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#A89F91]">
+                                        {item.sizes.map((s, idx) => (
+                                          <span key={idx} className="inline-flex items-baseline">
+                                            <span className="text-[#DDD7CB] font-medium">{s.name}</span>
+                                            <span className="mx-1 text-[#C5943A]/70 font-semibold">{formatNaira(s.price)}</span>
+                                            {idx < item.sizes!.length - 1 && (
+                                              <span className="ml-2 text-[#594D44] select-none">•</span>
+                                            )}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                   </div>
 
                   {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
-                  <div className="mt-auto pt-6 border-t border-[#3D332A] space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans">
+                  <div className="menu-footer mt-auto pt-6 border-t border-[#3D332A] space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                     <div className="flex items-center justify-between gap-4 text-left">
                       <div className="space-y-0.5">
                         <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-[#C5943A]">
@@ -398,12 +417,12 @@ export const MenuPdfPage: React.FC = () => {
                ========================================================================== */}
             {selectedStyle === 'classic' && (
               <>
-                {/* ── PAGE 1: COVER PAGE (Exact A4 297mm Height) ── */}
+                {/* ── PAGE 1: COVER PAGE (A4 Portrait) ── */}
                 <div
-                  className="w-[210mm] h-[297mm] min-h-[297mm] max-h-[297mm] p-8 box-border flex flex-col justify-between items-stretch html2pdf__page-break bg-[#FAF7F2]"
+                  className="w-[210mm] min-h-[275mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#FAF7F2]"
                   style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
                 >
-                  <div className="h-full w-full flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] box-border">
+                  <div className="h-full min-h-[255mm] w-full flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] box-border">
                     <div className="pt-6">
                       <Logo size="2xl" className="justify-center" />
                     </div>
@@ -464,67 +483,74 @@ export const MenuPdfPage: React.FC = () => {
                         className="space-y-3"
                       >
                         <div
-                          className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-after-avoid"
-                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                          className="menu-category-header flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-inside-avoid html2pdf__page-break-avoid"
+                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid', pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
                           <h3 className="font-serif font-bold text-base text-amber-950 uppercase tracking-wider pb-0.5">
                             {category.name}
                           </h3>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                          {items.map((item) => {
-                            const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
-                            let priceLabel = formatNaira(item.basePrice);
-                            if (hasSizes && item.sizes) {
-                              const prices = item.sizes.map((s) => s.price);
-                              const min = Math.min(...prices);
-                              const max = Math.max(...prices);
-                              priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
-                            }
+                        <div className="space-y-4">
+                          {chunkInPairs(items).map((pair, pairIdx) => (
+                            <div
+                              key={pairIdx}
+                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid html2pdf__page-break-avoid"
+                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                            >
+                              {pair.map((item) => {
+                                const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                                let priceLabel = formatNaira(item.basePrice);
+                                if (hasSizes && item.sizes) {
+                                  const prices = item.sizes.map((s) => s.price);
+                                  const min = Math.min(...prices);
+                                  const max = Math.max(...prices);
+                                  priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                                }
 
-                            return (
-                              <div
-                                key={item._id}
-                                className="space-y-1 border-b border-stone-200 pb-3 break-inside-avoid html2pdf__page-break-avoid"
-                                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-                              >
-                                <div className="flex items-start justify-between gap-2.5">
-                                  <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
-                                    {item.name}
-                                  </h4>
-                                  <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
-                                    {priceLabel}
-                                  </span>
-                                </div>
-                                {item.description && (
-                                  <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
-                                    {item.description}
-                                  </p>
-                                )}
-                                {hasSizes && item.sizes && (
-                                  <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
-                                    {item.sizes.map((s, idx) => (
-                                      <span key={idx} className="inline-flex items-baseline">
-                                        <span className="text-stone-800 font-medium">{s.name}</span>
-                                        <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
-                                        {idx < item.sizes!.length - 1 && (
-                                          <span className="ml-2 text-stone-300 select-none">•</span>
-                                        )}
+                                return (
+                                  <div
+                                    key={item._id}
+                                    className="space-y-1 border-b border-stone-200 pb-3"
+                                  >
+                                    <div className="flex items-start justify-between gap-2.5">
+                                      <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
+                                        {item.name}
+                                      </h4>
+                                      <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                        {priceLabel}
                                       </span>
-                                    ))}
+                                    </div>
+                                    {item.description && (
+                                      <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
+                                        {item.description}
+                                      </p>
+                                    )}
+                                    {hasSizes && item.sizes && (
+                                      <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
+                                        {item.sizes.map((s, idx) => (
+                                          <span key={idx} className="inline-flex items-baseline">
+                                            <span className="text-stone-800 font-medium">{s.name}</span>
+                                            <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
+                                            {idx < item.sizes!.length - 1 && (
+                                              <span className="ml-2 text-stone-300 select-none">•</span>
+                                            )}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                   </div>
 
                   {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
-                  <div className="mt-auto pt-6 border-t border-amber-900/20 space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans">
+                  <div className="menu-footer mt-auto pt-6 border-t border-amber-900/20 space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                     <div className="flex items-center justify-between gap-4 text-left">
                       <div className="space-y-0.5">
                         <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-amber-950">
