@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Printer, Download, FileText } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { publicApi } from '../lib/api';
@@ -39,48 +39,37 @@ export const MenuPdfPage: React.FC = () => {
     loadMenuData();
   }, []);
 
-  // Group items by category
-  const itemsByCategory = categories.map((cat) => {
-    const items = menuItems.filter((item) => {
-      const catId = typeof item.categoryId === 'string' ? item.categoryId : item.categoryId?._id;
-      return catId === cat._id;
-    });
-    return { category: cat, items };
-  }).filter((group) => group.items.length > 0);
+  // Memoize grouped items so object identity is stable across renders
+  const itemsByCategory = useMemo(() => {
+    return categories
+      .map((cat) => {
+        const items = menuItems.filter((item) => {
+          const catId = typeof item.categoryId === 'string' ? item.categoryId : item.categoryId?._id;
+          return catId === cat._id;
+        });
+        return { category: cat, items };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [categories, menuItems]);
 
   // Dynamically calculate the catalog height to ensure the last page goes through to the bottom of the A4 page
   const recalculateCatalogHeight = useCallback(() => {
     if (!catalogContentRef.current || !pageRulerRef.current) return;
 
     const a4Px = pageRulerRef.current.offsetHeight || 1123;
-    const contentEl = catalogContentRef.current;
-    const containerRect = contentEl.getBoundingClientRect();
-    const avoidElements = Array.from(contentEl.querySelectorAll<HTMLElement>('.html2pdf__page-break-avoid'));
+    const contentHeight = catalogContentRef.current.offsetHeight;
+    if (!contentHeight || contentHeight <= 0) return;
 
-    let accumulatedShift = 0;
+    // Footer height (~90px) + p-8 top/bottom padding (64px)
+    const footerAndPaddingPx = 154;
 
-    for (const el of avoidElements) {
-      const rect = el.getBoundingClientRect();
-      const originalTop = rect.top - containerRect.top + accumulatedShift;
-      const height = rect.height;
-      const originalBottom = originalTop + height;
+    // Estimate small boundary break shifts (at most ~40px per page boundary)
+    const roughPages = Math.ceil((contentHeight + footerAndPaddingPx) / a4Px);
+    const boundaryBuffer = Math.max(0, roughPages - 1) * 40;
 
-      const pageOfTop = Math.floor(originalTop / a4Px);
-      const pageOfBottom = Math.floor(originalBottom / a4Px);
+    const totalNeededPx = contentHeight + footerAndPaddingPx + boundaryBuffer;
+    const pages = Math.max(1, Math.min(10, Math.ceil(totalNeededPx / a4Px)));
 
-      // If item crosses an A4 page boundary, html2pdf pushes it down to the next page
-      if (pageOfTop !== pageOfBottom) {
-        const shift = ((pageOfTop + 1) * a4Px) - originalTop;
-        accumulatedShift += shift;
-      }
-    }
-
-    const baseHeight = contentEl.scrollHeight + accumulatedShift;
-    // Footer height (~90px) + top/bottom padding allowance
-    const footerAndPaddingPx = 160;
-    const totalPx = baseHeight + footerAndPaddingPx;
-
-    const pages = Math.max(1, Math.ceil(totalPx / a4Px));
     setCatalogMinHeight(`${pages * 297}mm`);
   }, []);
 
@@ -297,7 +286,7 @@ export const MenuPdfPage: React.FC = () => {
                   className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#161311] text-[#FAF7F2] font-serif"
                   style={{ minHeight: catalogMinHeight }}
                 >
-                  <div ref={catalogContentRef} className="space-y-8 flex-1">
+                  <div ref={catalogContentRef} className="space-y-8">
                     <div className="text-center border-b border-[#3D332A] pb-3">
                       <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
                         Dining & Room Selection
@@ -459,7 +448,7 @@ export const MenuPdfPage: React.FC = () => {
                   className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#FAF7F2] text-[#161311] font-serif"
                   style={{ minHeight: catalogMinHeight }}
                 >
-                  <div ref={catalogContentRef} className="space-y-8 flex-1">
+                  <div ref={catalogContentRef} className="space-y-8">
                     <div className="text-center border-b-2 border-amber-900/20 pb-3">
                       <h2 className="text-2xl font-black text-amber-950 uppercase tracking-widest">
                         A la Carte Menu
