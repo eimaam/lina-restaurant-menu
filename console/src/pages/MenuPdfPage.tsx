@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Printer, Download, FileText, Sparkles, Check, Palette, QrCode } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Printer, Download, FileText } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { publicApi } from '../lib/api';
 import { formatNaira, Button, Logo, toast } from '@lina/ui';
@@ -11,7 +11,11 @@ export const MenuPdfPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'midnight' | 'classic'>('midnight');
+  const [catalogMinHeight, setCatalogMinHeight] = useState<string>('297mm');
+
   const pdfContainerRef = useRef<HTMLDivElement>(null);
+  const catalogContentRef = useRef<HTMLDivElement>(null);
+  const pageRulerRef = useRef<HTMLDivElement>(null);
 
   const defaultDomain = import.meta.env.VITE_CLIENT_URL || 'https://linarestaurantandbar.com.ng';
 
@@ -35,7 +39,66 @@ export const MenuPdfPage: React.FC = () => {
     loadMenuData();
   }, []);
 
+  // Group items by category
+  const itemsByCategory = categories.map((cat) => {
+    const items = menuItems.filter((item) => {
+      const catId = typeof item.categoryId === 'string' ? item.categoryId : item.categoryId?._id;
+      return catId === cat._id;
+    });
+    return { category: cat, items };
+  }).filter((group) => group.items.length > 0);
+
+  // Dynamically calculate the catalog height to ensure the last page goes through to the bottom of the A4 page
+  const recalculateCatalogHeight = useCallback(() => {
+    if (!catalogContentRef.current || !pageRulerRef.current) return;
+
+    const a4Px = pageRulerRef.current.offsetHeight || 1123;
+    const contentEl = catalogContentRef.current;
+    const containerRect = contentEl.getBoundingClientRect();
+    const avoidElements = Array.from(contentEl.querySelectorAll<HTMLElement>('.html2pdf__page-break-avoid'));
+
+    let accumulatedShift = 0;
+
+    for (const el of avoidElements) {
+      const rect = el.getBoundingClientRect();
+      const originalTop = rect.top - containerRect.top + accumulatedShift;
+      const height = rect.height;
+      const originalBottom = originalTop + height;
+
+      const pageOfTop = Math.floor(originalTop / a4Px);
+      const pageOfBottom = Math.floor(originalBottom / a4Px);
+
+      // If item crosses an A4 page boundary, html2pdf pushes it down to the next page
+      if (pageOfTop !== pageOfBottom) {
+        const shift = ((pageOfTop + 1) * a4Px) - originalTop;
+        accumulatedShift += shift;
+      }
+    }
+
+    const baseHeight = contentEl.scrollHeight + accumulatedShift;
+    // Footer height (~90px) + top/bottom padding allowance
+    const footerAndPaddingPx = 160;
+    const totalPx = baseHeight + footerAndPaddingPx;
+
+    const pages = Math.max(1, Math.ceil(totalPx / a4Px));
+    setCatalogMinHeight(`${pages * 297}mm`);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      recalculateCatalogHeight();
+    }, 60);
+
+    const handleResize = () => recalculateCatalogHeight();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [itemsByCategory, selectedStyle, loading, recalculateCatalogHeight]);
+
   const handlePrint = () => {
+    recalculateCatalogHeight();
     window.print();
   };
 
@@ -43,6 +106,9 @@ export const MenuPdfPage: React.FC = () => {
     if (!pdfContainerRef.current) return;
     setDownloading(true);
     try {
+      recalculateCatalogHeight();
+      await new Promise((r) => setTimeout(r, 100));
+
       // @ts-ignore
       const html2pdfModule = await import('html2pdf.js');
       const html2pdf = html2pdfModule.default || html2pdfModule;
@@ -77,15 +143,6 @@ export const MenuPdfPage: React.FC = () => {
     }
   };
 
-  // Group items by category
-  const itemsByCategory = categories.map((cat) => {
-    const items = menuItems.filter((item) => {
-      const catId = typeof item.categoryId === 'string' ? item.categoryId : item.categoryId?._id;
-      return catId === cat._id;
-    });
-    return { category: cat, items };
-  }).filter((group) => group.items.length > 0);
-
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       {/* Control Header Bar (Hidden in Print & PDF export) */}
@@ -99,7 +156,7 @@ export const MenuPdfPage: React.FC = () => {
             Printable Menu PDF Exporter
           </h1>
           <p className="text-xs text-on-surface-variant mt-0.5">
-            Rendered in true A4 portrait format (210mm × 297mm) with cover page and digital QR code.
+            Rendered in true A4 portrait format (210mm × 297mm) with cover page, edge-to-edge layout and digital QR code.
           </p>
         </div>
 
@@ -156,276 +213,356 @@ export const MenuPdfPage: React.FC = () => {
       ) : (
         /* Printable Document Container (Styled to exact A4 width) */
         <div className="w-full flex justify-center overflow-x-auto pb-8 print:p-0">
+          {/* Hidden reference ruler to accurately measure 297mm in pixels in current environment */}
+          <div
+            ref={pageRulerRef}
+            style={{
+              height: '297mm',
+              width: '210mm',
+              position: 'absolute',
+              top: -99999,
+              left: -99999,
+              visibility: 'hidden',
+              pointerEvents: 'none',
+            }}
+          />
+
           <div
             ref={pdfContainerRef}
-            className="w-[210mm] max-w-[210mm] min-w-[210mm] bg-white print:max-w-none print:w-full box-border shadow-2xl"
-            style={{ minHeight: '297mm', width: '210mm' }}
+            className={`w-[210mm] max-w-[210mm] min-w-[210mm] ${
+              selectedStyle === 'midnight' ? 'bg-[#161311] text-[#FAF7F2]' : 'bg-[#FAF7F2] text-[#161311]'
+            } print:max-w-none print:w-full box-border shadow-2xl flex flex-col`}
+            style={{ width: '210mm' }}
           >
             {/* ==========================================================================
                STYLE 1: MIDNIGHT OBSIDIAN & GOLD
                ========================================================================== */}
             {selectedStyle === 'midnight' && (
-              <div className="bg-[#161311] text-[#FAF7F2] p-8 space-y-10 font-serif min-h-[297mm] box-border">
-                {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] html2pdf__page-break box-border">
-                  {/* Corner Luxury Frame Accents */}
-                  <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#C5943A]" />
-                  <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#C5943A]" />
-                  <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#C5943A]" />
-                  <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#C5943A]" />
+              <>
+                {/* ── PAGE 1: COVER PAGE (Exact A4 297mm Height) ── */}
+                <div
+                  className="w-[210mm] h-[297mm] min-h-[297mm] max-h-[297mm] p-8 box-border flex flex-col justify-between items-stretch html2pdf__page-break bg-[#161311]"
+                  style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+                >
+                  <div className="h-full w-full flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] box-border">
+                    {/* Corner Luxury Frame Accents */}
+                    <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#C5943A]" />
+                    <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#C5943A]" />
+                    <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#C5943A]" />
+                    <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#C5943A]" />
 
-                  {/* Top Logo Crest */}
-                  <div className="pt-6">
-                    <Logo size="2xl" className="justify-center" />
-                  </div>
-
-                  {/* Central Typography Header */}
-                  <div className="space-y-4 my-auto max-w-lg">
-                    <div className="inline-block px-4 py-1 rounded-full bg-[#2E2722] text-[#C5943A] text-xs font-sans font-bold uppercase tracking-[0.25em] border border-[#C5943A]/30">
-                      Official Dining & Bar Menu
+                    {/* Top Logo Crest */}
+                    <div className="pt-6">
+                      <Logo size="2xl" className="justify-center" />
                     </div>
-                    <h1 className="text-4xl font-black tracking-tight text-[#FAF7F2] leading-tight pb-1">
-                      Lina Restaurant, Bar And Street Food
-                    </h1>
-                    <p className="text-xl italic text-[#C5943A] font-medium">
-                      Where Good Food Meets Great Vibes.
-                    </p>
-                    <div className="w-20 h-0.5 bg-[#C5943A]/50 mx-auto my-3" />
-                    <p className="text-xs font-sans text-[#DDD7CB] leading-relaxed">
-                      27/29 6th Avenue, Gwarinpa Estate, Abuja
-                      <br />
-                      Reservations & Dispatch: <strong className="text-white">09165196622</strong>
-                    </p>
-                  </div>
 
-                  {/* Bottom QR Code Block */}
-                  <div className="pb-4 flex flex-col items-center space-y-2.5">
-                    <div className="p-3 bg-white rounded-xl shadow-lg border-2 border-[#C5943A]">
-                      <QRCodeSVG
-                        value={`${defaultDomain}/menu`}
-                        size={110}
-                        level="H"
-                        includeMargin={false}
-                      />
+                    {/* Central Typography Header */}
+                    <div className="space-y-4 my-auto max-w-lg">
+                      <div className="inline-block px-4 py-1 rounded-full bg-[#2E2722] text-[#C5943A] text-xs font-sans font-bold uppercase tracking-[0.25em] border border-[#C5943A]/30">
+                        Official Dining & Bar Menu
+                      </div>
+                      <h1 className="text-4xl font-black tracking-tight text-[#FAF7F2] leading-tight pb-1 font-serif">
+                        Lina Restaurant, Bar And Street Food
+                      </h1>
+                      <p className="text-xl italic text-[#C5943A] font-medium font-serif">
+                        Where Good Food Meets Great Vibes.
+                      </p>
+                      <div className="w-20 h-0.5 bg-[#C5943A]/50 mx-auto my-3" />
+                      <p className="text-xs font-sans text-[#DDD7CB] leading-relaxed">
+                        27/29 6th Avenue, Gwarinpa Estate, Abuja
+                        <br />
+                        Reservations & Dispatch: <strong className="text-white">09165196622</strong>
+                      </p>
                     </div>
-                    <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#C5943A]">
-                      Scan with Camera for Digital Menu & Instant Ordering
+
+                    {/* Bottom QR Code Block */}
+                    <div className="pb-4 flex flex-col items-center space-y-2.5">
+                      <div className="p-3 bg-white rounded-xl shadow-lg border-2 border-[#C5943A]">
+                        <QRCodeSVG
+                          value={`${defaultDomain}/menu`}
+                          size={110}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      </div>
+                      <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#C5943A]">
+                        Scan with Camera for Digital Menu & Instant Ordering
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
-                <div className="space-y-8 pt-4">
-                  <div className="text-center border-b border-[#3D332A] pb-3">
-                    <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
-                      Dining & Room Selection
-                    </h2>
-                    <p className="text-xs text-[#A89F91] font-sans pt-1">
-                      All delicacies prepared fresh to order in our executive kitchen
-                    </p>
-                  </div>
+                {/* ── PAGE 2+: MENU CATALOG PAGES (Stretches through to bottom of last A4 page) ── */}
+                <div
+                  className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#161311] text-[#FAF7F2] font-serif"
+                  style={{ minHeight: catalogMinHeight }}
+                >
+                  <div ref={catalogContentRef} className="space-y-8 flex-1">
+                    <div className="text-center border-b border-[#3D332A] pb-3">
+                      <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
+                        Dining & Room Selection
+                      </h2>
+                      <p className="text-xs text-[#A89F91] font-sans pt-1">
+                        All delicacies prepared fresh to order in our executive kitchen
+                      </p>
+                    </div>
 
-                  {itemsByCategory.map(({ category, items }) => (
-                    <div
-                      key={category._id}
-                      className="space-y-3"
-                    >
+                    {itemsByCategory.map(({ category, items }) => (
                       <div
-                        className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-after-avoid"
-                        style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                        key={category._id}
+                        className="space-y-3"
                       >
-                        <span className="text-lg">{category.icon || '🍽️'}</span>
-                        <h3 className="font-serif font-bold text-base text-[#FAF7F2] uppercase tracking-wider pb-0.5">
-                          {category.name}
-                        </h3>
-                      </div>
+                        <div
+                          className="flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-after-avoid"
+                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                        >
+                          <span className="text-lg">{category.icon || '🍽️'}</span>
+                          <h3 className="font-serif font-bold text-base text-[#FAF7F2] uppercase tracking-wider pb-0.5">
+                            {category.name}
+                          </h3>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                        {items.map((item) => {
-                          const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
-                          let priceLabel = formatNaira(item.basePrice);
-                          if (hasSizes && item.sizes) {
-                            const prices = item.sizes.map((s) => s.price);
-                            const min = Math.min(...prices);
-                            const max = Math.max(...prices);
-                            priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
-                          }
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                          {items.map((item) => {
+                            const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                            let priceLabel = formatNaira(item.basePrice);
+                            if (hasSizes && item.sizes) {
+                              const prices = item.sizes.map((s) => s.price);
+                              const min = Math.min(...prices);
+                              const max = Math.max(...prices);
+                              priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                            }
 
-                          return (
-                            <div
-                              key={item._id}
-                              className="space-y-1 border-b border-[#2E2722]/80 pb-3 break-inside-avoid html2pdf__page-break-avoid"
-                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-                            >
-                              <div className="flex items-start justify-between gap-2.5">
-                                <h4 className="font-serif font-bold text-xs text-[#FAF7F2] leading-snug pb-0.5 break-words">
-                                  {item.name}
-                                </h4>
-                                <span className="font-sans font-bold text-xs text-[#C5943A] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
-                                  {priceLabel}
-                                </span>
-                              </div>
-                              {item.description && (
-                                <p className="text-[10px] text-[#DDD7CB]/90 font-sans leading-relaxed pb-0.5">
-                                  {item.description}
-                                </p>
-                              )}
-                              {hasSizes && item.sizes && (
-                                <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#A89F91]">
-                                  {item.sizes.map((s, idx) => (
-                                    <span key={idx} className="inline-flex items-baseline">
-                                      <span className="text-[#DDD7CB] font-medium">{s.name}</span>
-                                      <span className="mx-1 text-[#C5943A]/70 font-semibold">{formatNaira(s.price)}</span>
-                                      {idx < item.sizes!.length - 1 && (
-                                        <span className="ml-2 text-[#594D44] select-none">•</span>
-                                      )}
-                                    </span>
-                                  ))}
+                            return (
+                              <div
+                                key={item._id}
+                                className="space-y-1 border-b border-[#2E2722]/80 pb-3 break-inside-avoid html2pdf__page-break-avoid"
+                                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                              >
+                                <div className="flex items-start justify-between gap-2.5">
+                                  <h4 className="font-serif font-bold text-xs text-[#FAF7F2] leading-snug pb-0.5 break-words">
+                                    {item.name}
+                                  </h4>
+                                  <span className="font-sans font-bold text-xs text-[#C5943A] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                    {priceLabel}
+                                  </span>
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                                {item.description && (
+                                  <p className="text-[10px] text-[#DDD7CB]/90 font-sans leading-relaxed pb-0.5">
+                                    {item.description}
+                                  </p>
+                                )}
+                                {hasSizes && item.sizes && (
+                                  <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#A89F91]">
+                                    {item.sizes.map((s, idx) => (
+                                      <span key={idx} className="inline-flex items-baseline">
+                                        <span className="text-[#DDD7CB] font-medium">{s.name}</span>
+                                        <span className="mx-1 text-[#C5943A]/70 font-semibold">{formatNaira(s.price)}</span>
+                                        {idx < item.sizes!.length - 1 && (
+                                          <span className="ml-2 text-[#594D44] select-none">•</span>
+                                        )}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
+                  <div className="mt-auto pt-6 border-t border-[#3D332A] space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans">
+                    <div className="flex items-center justify-between gap-4 text-left">
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-[#C5943A]">
+                          Chef's Note & Dining Information
+                        </div>
+                        <p className="text-[9px] leading-relaxed max-w-sm text-[#DDD7CB]/80">
+                          Please inform our service staff of any food allergies or dietary preferences before placing your order.
+                          All delicacies are prepared fresh to order in our executive kitchen.
+                        </p>
+                      </div>
+                      <div className="text-right space-y-0.5 shrink-0">
+                        <div className="text-[10px] font-bold text-[#FAF7F2]">
+                          Dine-In • Takeaway • Fast Delivery
+                        </div>
+                        <div className="text-[10px] font-semibold text-[#C5943A]">
+                          Reservations & Dispatch: 09165196622
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* ── FOOTER ── */}
-                <div className="border-t border-[#3D332A] pt-4 flex items-center justify-between text-[10px] text-[#A89F91] font-sans">
-                  <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
-                  <div>{defaultDomain}</div>
+                    <div className="border-t border-[#2E2722] pt-2.5 flex items-center justify-between text-[9px] text-[#A89F91]">
+                      <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • 27/29 6th Avenue, Gwarinpa, Abuja</div>
+                      <div className="font-mono text-[#C5943A]">{defaultDomain.replace(/^https?:\/\//, '')}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {/* ==========================================================================
                STYLE 2: CLASSIC CREAM ELEGANCE
                ========================================================================== */}
             {selectedStyle === 'classic' && (
-              <div className="bg-[#FAF7F2] text-[#161311] p-8 space-y-10 font-serif min-h-[297mm] box-border">
-                {/* ── PAGE 1: COVER PAGE ── */}
-                <div className="min-h-[260mm] flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] html2pdf__page-break box-border">
-                  <div className="pt-6">
-                    <Logo size="2xl" className="justify-center" />
-                  </div>
-
-                  <div className="space-y-4 my-auto max-w-lg">
-                    <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
-                      Fine Dining & VIP Rooms
-                    </span>
-                    <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight pb-1">
-                      Lina Restaurant, Bar And Street Food
-                    </h1>
-                    <p className="text-xl italic text-amber-800 font-medium">
-                      Where Good Food Meets Great Vibes.
-                    </p>
-                    <div className="w-20 h-0.5 bg-amber-900/30 mx-auto my-3" />
-                    <p className="text-xs font-sans text-stone-600 leading-relaxed">
-                      27/29 6th Avenue, Gwarinpa Estate, Abuja
-                      <br />
-                      Reservations & Table Bookings: <strong className="text-stone-900">09165196622</strong>
-                    </p>
-                  </div>
-
-                  {/* Cover QR Badge */}
-                  <div className="pb-4 flex flex-col items-center space-y-2.5">
-                    <div className="p-3 bg-white rounded-xl shadow-md border-2 border-amber-300">
-                      <QRCodeSVG
-                        value={`${defaultDomain}/menu`}
-                        size={110}
-                        level="H"
-                        includeMargin={false}
-                      />
+              <>
+                {/* ── PAGE 1: COVER PAGE (Exact A4 297mm Height) ── */}
+                <div
+                  className="w-[210mm] h-[297mm] min-h-[297mm] max-h-[297mm] p-8 box-border flex flex-col justify-between items-stretch html2pdf__page-break bg-[#FAF7F2]"
+                  style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+                >
+                  <div className="h-full w-full flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] box-border">
+                    <div className="pt-6">
+                      <Logo size="2xl" className="justify-center" />
                     </div>
-                    <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-amber-900">
-                      Scan with Phone Camera for Digital Ordering
+
+                    <div className="space-y-4 my-auto max-w-lg">
+                      <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
+                        Fine Dining & VIP Rooms
+                      </span>
+                      <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight pb-1 font-serif">
+                        Lina Restaurant, Bar And Street Food
+                      </h1>
+                      <p className="text-xl italic text-amber-800 font-medium font-serif">
+                        Where Good Food Meets Great Vibes.
+                      </p>
+                      <div className="w-20 h-0.5 bg-amber-900/30 mx-auto my-3" />
+                      <p className="text-xs font-sans text-stone-600 leading-relaxed">
+                        27/29 6th Avenue, Gwarinpa Estate, Abuja
+                        <br />
+                        Reservations & Table Bookings: <strong className="text-stone-900">09165196622</strong>
+                      </p>
+                    </div>
+
+                    {/* Cover QR Badge */}
+                    <div className="pb-4 flex flex-col items-center space-y-2.5">
+                      <div className="p-3 bg-white rounded-xl shadow-md border-2 border-amber-300">
+                        <QRCodeSVG
+                          value={`${defaultDomain}/menu`}
+                          size={110}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      </div>
+                      <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-amber-900">
+                        Scan with Phone Camera for Digital Ordering
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
-                <div className="space-y-8 pt-4">
-                  <div className="text-center border-b-2 border-amber-900/20 pb-3">
-                    <h2 className="text-2xl font-black text-amber-950 uppercase tracking-widest">
-                      A la Carte Menu
-                    </h2>
-                    <p className="text-xs text-stone-500 font-sans pt-1">
-                      Fresh native soups, charcoal grills, shawarmas and premium cocktails
-                    </p>
-                  </div>
+                {/* ── PAGE 2+: MENU CATALOG PAGES (Stretches through to bottom of last A4 page) ── */}
+                <div
+                  className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#FAF7F2] text-[#161311] font-serif"
+                  style={{ minHeight: catalogMinHeight }}
+                >
+                  <div ref={catalogContentRef} className="space-y-8 flex-1">
+                    <div className="text-center border-b-2 border-amber-900/20 pb-3">
+                      <h2 className="text-2xl font-black text-amber-950 uppercase tracking-widest">
+                        A la Carte Menu
+                      </h2>
+                      <p className="text-xs text-stone-500 font-sans pt-1">
+                        Fresh native soups, charcoal grills, shawarmas and premium cocktails
+                      </p>
+                    </div>
 
-                  {itemsByCategory.map(({ category, items }) => (
-                    <div
-                      key={category._id}
-                      className="space-y-3"
-                    >
+                    {itemsByCategory.map(({ category, items }) => (
                       <div
-                        className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-after-avoid"
-                        style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                        key={category._id}
+                        className="space-y-3"
                       >
-                        <h3 className="font-serif font-bold text-base text-amber-950 uppercase tracking-wider pb-0.5">
-                          {category.name}
-                        </h3>
-                      </div>
+                        <div
+                          className="flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-after-avoid"
+                          style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid' }}
+                        >
+                          <h3 className="font-serif font-bold text-base text-amber-950 uppercase tracking-wider pb-0.5">
+                            {category.name}
+                          </h3>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                        {items.map((item) => {
-                          const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
-                          let priceLabel = formatNaira(item.basePrice);
-                          if (hasSizes && item.sizes) {
-                            const prices = item.sizes.map((s) => s.price);
-                            const min = Math.min(...prices);
-                            const max = Math.max(...prices);
-                            priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
-                          }
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                          {items.map((item) => {
+                            const hasSizes = Boolean(item.hasSizes && item.sizes && item.sizes.length > 0);
+                            let priceLabel = formatNaira(item.basePrice);
+                            if (hasSizes && item.sizes) {
+                              const prices = item.sizes.map((s) => s.price);
+                              const min = Math.min(...prices);
+                              const max = Math.max(...prices);
+                              priceLabel = min === max ? formatNaira(min) : `from ${formatNaira(min)}`;
+                            }
 
-                          return (
-                            <div
-                              key={item._id}
-                              className="space-y-1 border-b border-stone-200 pb-3 break-inside-avoid html2pdf__page-break-avoid"
-                              style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
-                            >
-                              <div className="flex items-start justify-between gap-2.5">
-                                <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
-                                  {item.name}
-                                </h4>
-                                <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
-                                  {priceLabel}
-                                </span>
-                              </div>
-                              {item.description && (
-                                <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
-                                  {item.description}
-                                </p>
-                              )}
-                              {hasSizes && item.sizes && (
-                                <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
-                                  {item.sizes.map((s, idx) => (
-                                    <span key={idx} className="inline-flex items-baseline">
-                                      <span className="text-stone-800 font-medium">{s.name}</span>
-                                      <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
-                                      {idx < item.sizes!.length - 1 && (
-                                        <span className="ml-2 text-stone-300 select-none">•</span>
-                                      )}
-                                    </span>
-                                  ))}
+                            return (
+                              <div
+                                key={item._id}
+                                className="space-y-1 border-b border-stone-200 pb-3 break-inside-avoid html2pdf__page-break-avoid"
+                                style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
+                              >
+                                <div className="flex items-start justify-between gap-2.5">
+                                  <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
+                                    {item.name}
+                                  </h4>
+                                  <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                    {priceLabel}
+                                  </span>
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                                {item.description && (
+                                  <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
+                                    {item.description}
+                                  </p>
+                                )}
+                                {hasSizes && item.sizes && (
+                                  <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
+                                    {item.sizes.map((s, idx) => (
+                                      <span key={idx} className="inline-flex items-baseline">
+                                        <span className="text-stone-800 font-medium">{s.name}</span>
+                                        <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
+                                        {idx < item.sizes!.length - 1 && (
+                                          <span className="ml-2 text-stone-300 select-none">•</span>
+                                        )}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
+                  <div className="mt-auto pt-6 border-t border-amber-900/20 space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans">
+                    <div className="flex items-center justify-between gap-4 text-left">
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-amber-950">
+                          Chef's Note & Dining Information
+                        </div>
+                        <p className="text-[9px] leading-relaxed max-w-sm text-stone-600">
+                          Please inform our service staff of any food allergies or dietary preferences before placing your order.
+                          All delicacies are prepared fresh to order in our executive kitchen.
+                        </p>
+                      </div>
+                      <div className="text-right space-y-0.5 shrink-0">
+                        <div className="text-[10px] font-bold text-amber-950">
+                          Dine-In • Takeaway • Fast Delivery
+                        </div>
+                        <div className="text-[10px] font-semibold text-amber-900">
+                          Reservations & Dispatch: 09165196622
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* ── FOOTER ── */}
-                <div className="border-t border-amber-900/20 pt-4 flex items-center justify-between text-[10px] text-stone-500 font-sans">
-                  <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • Gwarinpa, Abuja</div>
-                  <div>{defaultDomain}</div>
+                    <div className="border-t border-amber-900/10 pt-2.5 flex items-center justify-between text-[9px] text-stone-500">
+                      <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • 27/29 6th Avenue, Gwarinpa, Abuja</div>
+                      <div className="font-mono text-amber-900">{defaultDomain.replace(/^https?:\/\//, '')}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
