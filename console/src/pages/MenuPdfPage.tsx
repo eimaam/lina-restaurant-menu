@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Printer, Download, FileText } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { publicApi } from '../lib/api';
 import { formatNaira, Button, Logo, toast } from '@lina/ui';
 import type { MenuCategoryResponse, MenuItemResponse } from '@lina/types';
+import { toCanvas } from 'html-to-image';
+import jsPDF from 'jspdf';
 
 // Helper function to chunk items into pairs of 2 so each row can avoid page break splits
 const chunkInPairs = <T,>(arr: T[]): T[][] => {
@@ -20,11 +22,10 @@ export const MenuPdfPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<'midnight' | 'classic'>('midnight');
-  const [catalogMinHeight, setCatalogMinHeight] = useState<string>('297mm');
 
   const pdfContainerRef = useRef<HTMLDivElement>(null);
-  const catalogContentRef = useRef<HTMLDivElement>(null);
-  const pageRulerRef = useRef<HTMLDivElement>(null);
+  const coverPageRef = useRef<HTMLDivElement>(null);
+  const catalogContainerRef = useRef<HTMLDivElement>(null);
 
   const defaultDomain = import.meta.env.VITE_CLIENT_URL || 'https://linarestaurantandbar.com.ng';
 
@@ -61,83 +62,117 @@ export const MenuPdfPage: React.FC = () => {
       .filter((group) => group.items.length > 0);
   }, [categories, menuItems]);
 
-  // Dynamically calculate the catalog height to ensure the last page goes through to the bottom of the A4 page
-  const recalculateCatalogHeight = useCallback(() => {
-    if (!catalogContentRef.current || !pageRulerRef.current) return;
-
-    const a4Px = pageRulerRef.current.offsetHeight || 1123;
-    const contentHeight = catalogContentRef.current.offsetHeight;
-    if (!contentHeight || contentHeight <= 0) return;
-
-    // Footer height (~90px) + p-8 top/bottom padding (64px)
-    const footerAndPaddingPx = 154;
-
-    // Estimate small boundary break shifts (at most ~40px per page boundary)
-    const roughPages = Math.ceil((contentHeight + footerAndPaddingPx) / a4Px);
-    const boundaryBuffer = Math.max(0, roughPages - 1) * 40;
-
-    const totalNeededPx = contentHeight + footerAndPaddingPx + boundaryBuffer;
-    const pages = Math.max(1, Math.min(10, Math.ceil(totalNeededPx / a4Px)));
-
-    setCatalogMinHeight(`${pages * 297}mm`);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      recalculateCatalogHeight();
-    }, 60);
-
-    const handleResize = () => recalculateCatalogHeight();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [itemsByCategory, selectedStyle, loading, recalculateCatalogHeight]);
-
   const handlePrint = () => {
-    recalculateCatalogHeight();
     window.print();
   };
 
   const handleDownloadPdf = async () => {
-    if (!pdfContainerRef.current) return;
+    if (!coverPageRef.current || !catalogContainerRef.current) {
+      toast.error('Menu elements not ready for export.');
+      return;
+    }
     setDownloading(true);
     try {
-      recalculateCatalogHeight();
-      await new Promise((r) => setTimeout(r, 100));
+      // Ensure all web fonts are loaded
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+      await new Promise((r) => setTimeout(r, 120));
 
-      // @ts-ignore
-      const html2pdfModule = await import('html2pdf.js');
-      const html2pdf = html2pdfModule.default || html2pdfModule;
-
-      const element = pdfContainerRef.current;
       const filename = `Lina-Restaurant-Menu-A4-${selectedStyle === 'midnight' ? 'MidnightGold' : 'ClassicCream'}.pdf`;
+      const bgColor = selectedStyle === 'midnight' ? '#161311' : '#FAF7F2';
 
-      const opt = {
-        margin: [0, 0, 0, 0] as [number, number, number, number],
-        filename,
-        image: { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          scrollY: 0,
-          scrollX: 0,
-          windowWidth: 794,
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        pagebreak: {
-          mode: ['avoid-all', 'css', 'legacy'] as const,
-          avoid: ['.menu-item-row', '.menu-category-header', '.menu-footer'],
-        },
-      };
+      // 1. Initialize jsPDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
 
-      await html2pdf().set(opt).from(element).save();
+      // 2. Render Cover Page (Page 1)
+      const coverCanvas = await toCanvas(coverPageRef.current, {
+        pixelRatio: 2,
+        backgroundColor: bgColor,
+        cacheBust: true,
+      });
+      const coverImgData = coverCanvas.toDataURL('image/jpeg', 0.98);
+      pdf.addImage(coverImgData, 'JPEG', 0, 0, 210, 297);
+
+      // 3. Render Catalog Container
+      const catalogEl = catalogContainerRef.current;
+      const catalogCanvas = await toCanvas(catalogEl, {
+        pixelRatio: 2,
+        backgroundColor: bgColor,
+        cacheBust: true,
+      });
+
+      const canvasWidth = catalogCanvas.width;
+      const canvasHeight = catalogCanvas.height;
+      const a4PageHeightPx = Math.floor(canvasWidth * (297 / 210));
+
+      // Calculate avoid-break element bounding boxes relative to catalog container in canvas pixels
+      const containerRect = catalogEl.getBoundingClientRect();
+      const scale = canvasWidth / containerRect.width;
+
+      const avoidElements = Array.from(
+        catalogEl.querySelectorAll('.menu-item-row, .menu-category-header, .menu-footer')
+      );
+
+      const avoidBoxes = avoidElements.map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          top: (rect.top - containerRect.top) * scale,
+          bottom: (rect.bottom - containerRect.top) * scale,
+        };
+      });
+
+      // Slice the catalog canvas into exact A4 pages
+      let currentY = 0;
+      while (currentY < canvasHeight) {
+        let nextY = currentY + a4PageHeightPx;
+
+        if (nextY >= canvasHeight) {
+          nextY = canvasHeight;
+        } else {
+          // If cutting through an item or header, slice before it
+          const cuttingBox = avoidBoxes.find(
+            (box) => box.top < nextY && box.bottom > nextY
+          );
+          if (cuttingBox && cuttingBox.top > currentY + 120) {
+            nextY = cuttingBox.top - 6;
+          }
+        }
+
+        const sliceHeight = nextY - currentY;
+        if (sliceHeight <= 0) break;
+
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = a4PageHeightPx;
+        const ctx = pageCanvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, canvasWidth, a4PageHeightPx);
+          ctx.drawImage(
+            catalogCanvas,
+            0, currentY, canvasWidth, sliceHeight,
+            0, 0, canvasWidth, sliceHeight
+          );
+        }
+
+        pdf.addPage('a4', 'portrait');
+        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(pageImgData, 'JPEG', 0, 0, 210, 297);
+
+        currentY = nextY;
+      }
+
+      pdf.save(filename);
       toast.success('A4 Menu PDF downloaded successfully!');
     } catch (err) {
       console.error('PDF download error:', err);
-      toast.error('Direct download failed. Opening standard print/save dialog...');
+      toast.error('Direct download failed. Opening standard print dialog...');
       window.print();
     } finally {
       setDownloading(false);
@@ -165,20 +200,24 @@ export const MenuPdfPage: React.FC = () => {
           {/* Style Selector */}
           <div className="flex items-center p-1 bg-surface-container rounded-xl border border-outline-variant text-xs">
             <button
+              type="button"
               onClick={() => setSelectedStyle('midnight')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${selectedStyle === 'midnight'
-                ? 'bg-[#161311] text-[#FAF7F2] shadow-xs'
-                : 'text-on-surface-variant hover:text-on-surface'
-                }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                selectedStyle === 'midnight'
+                  ? 'bg-[#161311] text-[#FAF7F2] shadow-xs'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
             >
               Midnight Gold
             </button>
             <button
+              type="button"
               onClick={() => setSelectedStyle('classic')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${selectedStyle === 'classic'
-                ? 'bg-amber-100 text-amber-950 shadow-xs'
-                : 'text-on-surface-variant hover:text-on-surface'
-                }`}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                selectedStyle === 'classic'
+                  ? 'bg-[#F5EDE0] text-[#5A3816] border border-[#DECDB8] shadow-xs'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
             >
               Classic Cream
             </button>
@@ -213,26 +252,12 @@ export const MenuPdfPage: React.FC = () => {
         </div>
       ) : (
         /* Printable Document Container (Styled to exact A4 width) */
-        <div className="w-full flex justify-center overflow-x-auto pb-8 print:p-0">
-          {/* Hidden reference ruler to accurately measure 297mm in pixels in current environment */}
-          <div
-            ref={pageRulerRef}
-            style={{
-              height: '297mm',
-              width: '210mm',
-              position: 'absolute',
-              top: -99999,
-              left: -99999,
-              visibility: 'hidden',
-              pointerEvents: 'none',
-            }}
-          />
-
+        <div className="w-full flex justify-center overflow-x-auto pb-8 print:p-0 print:overflow-visible">
           <div
             ref={pdfContainerRef}
             className={`w-[210mm] max-w-[210mm] min-w-[210mm] ${
               selectedStyle === 'midnight' ? 'bg-[#161311] text-[#FAF7F2]' : 'bg-[#FAF7F2] text-[#161311]'
-            } print:max-w-none print:w-full box-border shadow-2xl flex flex-col`}
+            } print:max-w-none print:w-full print:shadow-none box-border shadow-2xl flex flex-col`}
             style={{ width: '210mm' }}
           >
             {/* ==========================================================================
@@ -242,8 +267,9 @@ export const MenuPdfPage: React.FC = () => {
               <>
                 {/* ── PAGE 1: COVER PAGE (A4 Portrait) ── */}
                 <div
-                  className="w-[210mm] min-h-[275mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#161311]"
-                  style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+                  ref={coverPageRef}
+                  className="menu-page-cover w-[210mm] min-h-[297mm] h-[297mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#161311]"
+                  style={{ pageBreakAfter: 'always', breakAfter: 'page', width: '210mm', height: '297mm' }}
                 >
                   <div className="h-full min-h-[255mm] w-full flex flex-col justify-between items-center text-center p-8 border-4 border-[#C5943A]/50 rounded-xl relative bg-[#1E1A17] box-border">
                     {/* Corner Luxury Frame Accents */}
@@ -293,12 +319,13 @@ export const MenuPdfPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* ── PAGE 2+: MENU CATALOG PAGES (Stretches through to bottom of last A4 page) ── */}
+                {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
                 <div
-                  className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#161311] text-[#FAF7F2] font-serif"
-                  style={{ minHeight: catalogMinHeight }}
+                  ref={catalogContainerRef}
+                  className="w-[210mm] p-8 box-border flex flex-col justify-between bg-[#161311] text-[#FAF7F2] font-serif"
+                  style={{ width: '210mm' }}
                 >
-                  <div ref={catalogContentRef} className="space-y-8">
+                  <div className="space-y-8">
                     <div className="text-center border-b border-[#3D332A] pb-3">
                       <h2 className="text-2xl font-black text-[#C5943A] uppercase tracking-widest">
                         Dining & Room Selection
@@ -314,7 +341,7 @@ export const MenuPdfPage: React.FC = () => {
                         className="space-y-3"
                       >
                         <div
-                          className="menu-category-header flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-inside-avoid html2pdf__page-break-avoid"
+                          className="menu-category-header flex items-center gap-2.5 border-b-2 border-[#C5943A]/40 pb-2 break-inside-avoid"
                           style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid', pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
                           <span className="text-lg">{category.icon || '🍽️'}</span>
@@ -327,7 +354,7 @@ export const MenuPdfPage: React.FC = () => {
                           {chunkInPairs(items).map((pair, pairIdx) => (
                             <div
                               key={pairIdx}
-                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid html2pdf__page-break-avoid"
+                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid"
                               style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                             >
                               {pair.map((item) => {
@@ -382,7 +409,7 @@ export const MenuPdfPage: React.FC = () => {
                   </div>
 
                   {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
-                  <div className="menu-footer mt-auto pt-6 border-t border-[#3D332A] space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                  <div className="menu-footer mt-auto pt-6 border-t border-[#3D332A] space-y-3 break-inside-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                     <div className="flex items-center justify-between gap-4 text-left">
                       <div className="space-y-0.5">
                         <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-[#C5943A]">
@@ -413,41 +440,50 @@ export const MenuPdfPage: React.FC = () => {
             )}
 
             {/* ==========================================================================
-               STYLE 2: CLASSIC CREAM ELEGANCE
+               STYLE 2: CLASSIC CREAM ELEGANCE (Luxury Warm Cream & Rich Espresso)
                ========================================================================== */}
             {selectedStyle === 'classic' && (
               <>
                 {/* ── PAGE 1: COVER PAGE (A4 Portrait) ── */}
                 <div
-                  className="w-[210mm] min-h-[275mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#FAF7F2]"
-                  style={{ pageBreakAfter: 'always', breakAfter: 'page' }}
+                  ref={coverPageRef}
+                  className="menu-page-cover w-[210mm] min-h-[297mm] h-[297mm] p-8 box-border flex flex-col justify-between items-stretch bg-[#FAF7F2]"
+                  style={{ pageBreakAfter: 'always', breakAfter: 'page', width: '210mm', height: '297mm' }}
                 >
-                  <div className="h-full min-h-[255mm] w-full flex flex-col justify-between items-center text-center p-8 border-2 border-amber-900/30 rounded-xl relative bg-[#FFFDF9] box-border">
+                  <div className="h-full min-h-[255mm] w-full flex flex-col justify-between items-center text-center p-8 border-4 border-[#8C531B]/40 rounded-xl relative bg-[#FFFDF9] box-border">
+                    {/* Corner Luxury Frame Accents */}
+                    <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#8C531B]" />
+                    <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#8C531B]" />
+                    <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#8C531B]" />
+                    <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#8C531B]" />
+
+                    {/* Top Logo Crest */}
                     <div className="pt-6">
                       <Logo size="2xl" className="justify-center" />
                     </div>
 
+                    {/* Central Typography Header */}
                     <div className="space-y-4 my-auto max-w-lg">
-                      <span className="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-sans font-bold uppercase tracking-[0.25em] border border-amber-300">
-                        Fine Dining & VIP Rooms
-                      </span>
-                      <h1 className="text-4xl font-black tracking-tight text-amber-950 leading-tight pb-1 font-serif">
+                      <div className="inline-block px-4 py-1 rounded-full bg-[#F5EDE0] text-[#5A3816] text-xs font-sans font-bold uppercase tracking-[0.25em] border border-[#DECDB8]">
+                        Official Dining & Bar Menu
+                      </div>
+                      <h1 className="text-4xl font-black tracking-tight text-[#2E1E12] leading-tight pb-1 font-serif">
                         Lina Restaurant, Bar And Street Food
                       </h1>
-                      <p className="text-xl italic text-amber-800 font-medium font-serif">
+                      <p className="text-xl italic text-[#8C531B] font-medium font-serif">
                         Where Good Food Meets Great Vibes.
                       </p>
-                      <div className="w-20 h-0.5 bg-amber-900/30 mx-auto my-3" />
-                      <p className="text-xs font-sans text-stone-600 leading-relaxed">
+                      <div className="w-20 h-0.5 bg-[#8C531B]/40 mx-auto my-3" />
+                      <p className="text-xs font-sans text-[#594D44] leading-relaxed">
                         27/29 6th Avenue, Gwarinpa Estate, Abuja
                         <br />
-                        Reservations & Table Bookings: <strong className="text-stone-900">09165196622</strong>
+                        Reservations & Table Bookings: <strong className="text-[#161311]">09165196622</strong>
                       </p>
                     </div>
 
                     {/* Cover QR Badge */}
                     <div className="pb-4 flex flex-col items-center space-y-2.5">
-                      <div className="p-3 bg-white rounded-xl shadow-md border-2 border-amber-300">
+                      <div className="p-3 bg-white rounded-xl shadow-md border-2 border-[#8C531B]">
                         <QRCodeSVG
                           value={`${defaultDomain}/menu`}
                           size={110}
@@ -455,24 +491,25 @@ export const MenuPdfPage: React.FC = () => {
                           includeMargin={false}
                         />
                       </div>
-                      <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-amber-900">
+                      <div className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#8C531B]">
                         Scan with Phone Camera for Digital Ordering
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── PAGE 2+: MENU CATALOG PAGES (Stretches through to bottom of last A4 page) ── */}
+                {/* ── PAGE 2+: MENU CATALOG PAGES ── */}
                 <div
-                  className="w-[210mm] p-8 box-border flex flex-col justify-between flex-1 bg-[#FAF7F2] text-[#161311] font-serif"
-                  style={{ minHeight: catalogMinHeight }}
+                  ref={catalogContainerRef}
+                  className="w-[210mm] p-8 box-border flex flex-col justify-between bg-[#FAF7F2] text-[#161311] font-serif"
+                  style={{ width: '210mm' }}
                 >
-                  <div ref={catalogContentRef} className="space-y-8">
-                    <div className="text-center border-b-2 border-amber-900/20 pb-3">
-                      <h2 className="text-2xl font-black text-amber-950 uppercase tracking-widest">
+                  <div className="space-y-8">
+                    <div className="text-center border-b-2 border-[#8C531B]/20 pb-3">
+                      <h2 className="text-2xl font-black text-[#2E1E12] uppercase tracking-widest">
                         A la Carte Menu
                       </h2>
-                      <p className="text-xs text-stone-500 font-sans pt-1">
+                      <p className="text-xs text-[#6B5E54] font-sans pt-1">
                         Fresh native soups, charcoal grills, shawarmas and premium cocktails
                       </p>
                     </div>
@@ -483,10 +520,11 @@ export const MenuPdfPage: React.FC = () => {
                         className="space-y-3"
                       >
                         <div
-                          className="menu-category-header flex items-center gap-2.5 border-b border-amber-900/30 pb-2 break-inside-avoid html2pdf__page-break-avoid"
+                          className="menu-category-header flex items-center gap-2.5 border-b-2 border-[#8C531B]/30 pb-2 break-inside-avoid"
                           style={{ pageBreakAfter: 'avoid', breakAfter: 'avoid', pageBreakInside: 'avoid', breakInside: 'avoid' }}
                         >
-                          <h3 className="font-serif font-bold text-base text-amber-950 uppercase tracking-wider pb-0.5">
+                          <span className="text-lg">{category.icon || '🍽️'}</span>
+                          <h3 className="font-serif font-bold text-base text-[#2E1E12] uppercase tracking-wider pb-0.5">
                             {category.name}
                           </h3>
                         </div>
@@ -495,7 +533,7 @@ export const MenuPdfPage: React.FC = () => {
                           {chunkInPairs(items).map((pair, pairIdx) => (
                             <div
                               key={pairIdx}
-                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid html2pdf__page-break-avoid"
+                              className="menu-item-row grid grid-cols-2 gap-x-6 break-inside-avoid"
                               style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}
                             >
                               {pair.map((item) => {
@@ -511,29 +549,29 @@ export const MenuPdfPage: React.FC = () => {
                                 return (
                                   <div
                                     key={item._id}
-                                    className="space-y-1 border-b border-stone-200 pb-3"
+                                    className="space-y-1 border-b border-[#E5DDD0] pb-3"
                                   >
                                     <div className="flex items-start justify-between gap-2.5">
-                                      <h4 className="font-serif font-bold text-xs text-stone-900 leading-snug pb-0.5 break-words">
+                                      <h4 className="font-serif font-bold text-xs text-[#161311] leading-snug pb-0.5 break-words">
                                         {item.name}
                                       </h4>
-                                      <span className="font-sans font-bold text-xs text-amber-900 shrink-0 whitespace-nowrap tabular-nums pt-0.5">
+                                      <span className="font-sans font-bold text-xs text-[#8C531B] shrink-0 whitespace-nowrap tabular-nums pt-0.5">
                                         {priceLabel}
                                       </span>
                                     </div>
                                     {item.description && (
-                                      <p className="text-[10px] text-stone-600 font-sans leading-relaxed pb-0.5">
+                                      <p className="text-[10px] text-[#6B5E54] font-sans leading-relaxed pb-0.5">
                                         {item.description}
                                       </p>
                                     )}
                                     {hasSizes && item.sizes && (
-                                      <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-stone-500">
+                                      <div className="pt-0.5 text-[10px] font-sans flex flex-wrap items-center gap-x-2 gap-y-1 text-[#594D44]">
                                         {item.sizes.map((s, idx) => (
                                           <span key={idx} className="inline-flex items-baseline">
-                                            <span className="text-stone-800 font-medium">{s.name}</span>
-                                            <span className="mx-1 text-amber-900 font-semibold">{formatNaira(s.price)}</span>
+                                            <span className="text-[#161311] font-medium">{s.name}</span>
+                                            <span className="mx-1 text-[#8C531B] font-semibold">{formatNaira(s.price)}</span>
                                             {idx < item.sizes!.length - 1 && (
-                                              <span className="ml-2 text-stone-300 select-none">•</span>
+                                              <span className="ml-2 text-[#B8AAA0] select-none">•</span>
                                             )}
                                           </span>
                                         ))}
@@ -550,30 +588,30 @@ export const MenuPdfPage: React.FC = () => {
                   </div>
 
                   {/* ── PINNED BOTTOM FOOTER ON LAST PAGE ── */}
-                  <div className="menu-footer mt-auto pt-6 border-t border-amber-900/20 space-y-3 break-inside-avoid html2pdf__page-break-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                  <div className="menu-footer mt-auto pt-6 border-t border-[#D9D0C3] space-y-3 break-inside-avoid font-sans" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                     <div className="flex items-center justify-between gap-4 text-left">
                       <div className="space-y-0.5">
-                        <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-amber-950">
+                        <div className="text-[11px] font-serif font-bold uppercase tracking-wider text-[#8C531B]">
                           Chef's Note & Dining Information
                         </div>
-                        <p className="text-[9px] leading-relaxed max-w-sm text-stone-600">
+                        <p className="text-[9px] leading-relaxed max-w-sm text-[#6B5E54]">
                           Please inform our service staff of any food allergies or dietary preferences before placing your order.
                           All delicacies are prepared fresh to order in our executive kitchen.
                         </p>
                       </div>
                       <div className="text-right space-y-0.5 shrink-0">
-                        <div className="text-[10px] font-bold text-amber-950">
+                        <div className="text-[10px] font-bold text-[#2E1E12]">
                           Dine-In • Takeaway • Fast Delivery
                         </div>
-                        <div className="text-[10px] font-semibold text-amber-900">
+                        <div className="text-[10px] font-semibold text-[#8C531B]">
                           Reservations & Dispatch: 09165196622
                         </div>
                       </div>
                     </div>
 
-                    <div className="border-t border-amber-900/10 pt-2.5 flex items-center justify-between text-[9px] text-stone-500">
+                    <div className="border-t border-[#E5DDD0] pt-2.5 flex items-center justify-between text-[9px] text-[#8A7E74]">
                       <div>© {new Date().getFullYear()} Lina Restaurant, Bar And Street Food • 27/29 6th Avenue, Gwarinpa, Abuja</div>
-                      <div className="font-mono text-amber-900">{defaultDomain.replace(/^https?:\/\//, '')}</div>
+                      <div className="font-mono text-[#8C531B]">{defaultDomain.replace(/^https?:\/\//, '')}</div>
                     </div>
                   </div>
                 </div>
@@ -585,4 +623,3 @@ export const MenuPdfPage: React.FC = () => {
     </div>
   );
 };
-

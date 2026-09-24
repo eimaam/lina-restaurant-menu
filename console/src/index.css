@@ -166,17 +166,62 @@ body {
     size: A4 portrait;
     margin: 0;
   }
+
+  html,
   body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
     background-color: transparent !important;
+  }
+
+  #root,
+  #root > div,
+  #root > div > div,
+  main {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  aside, header {
-    display: none !important;
+
+  .menu-page-cover {
+    page-break-after: always !important;
+    break-after: page !important;
   }
-  main {
-    padding: 0 !important;
-    max-width: none !important;
+
+  .menu-category-header {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .menu-item-row,
+  .menu-footer {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }
+
 
